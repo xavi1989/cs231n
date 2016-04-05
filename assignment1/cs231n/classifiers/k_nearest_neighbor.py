@@ -20,7 +20,7 @@ class KNearestNeighbor(object):
     self.X_train = X
     self.y_train = y
     
-  def predict(self, X, k=1, num_loops=1):
+  def predict(self, X, k=1, num_loops=0):
     """
     Predict labels for test data using this classifier.
 
