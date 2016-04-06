@@ -34,13 +34,17 @@ def svm_loss_naive(W, X, y, reg):
       margin = scores[j] - correct_class_score + 1 # note delta = 1
       if margin > 0:
         loss += margin
+        dW[:, j] += X[i, :]
+        dW[:, y[i]] -= X[i, :]
 
   # Right now the loss is a sum over all training examples, but we want it
   # to be an average instead so we divide by num_train.
   loss /= num_train
+  dW   /= num_train
 
   # Add regularization to the loss.
   loss += 0.5 * reg * np.sum(W * W)
+  dW   += reg * W
 
   #############################################################################
   # TODO:                                                                     #
@@ -63,13 +67,19 @@ def svm_loss_vectorized(W, X, y, reg):
   """
   loss = 0.0
   dW = np.zeros(W.shape) # initialize the gradient as zero
-
+  delta = 1
+  num_train = X.shape[0]
   #############################################################################
   # TODO:                                                                     #
   # Implement a vectorized version of the structured SVM loss, storing the    #
   # result in loss.                                                           #
   #############################################################################
-  pass
+  scores = X.dot(W)
+  correct_score = np.choose(y, scores.T)
+  margin_matrix = np.maximum(0, scores.T - correct_score.T + delta)
+  margin = np.sum(margin_matrix) / num_train
+  loss = margin + 0.5 * reg * np.sum(W * W) - 1
+
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
@@ -84,7 +94,14 @@ def svm_loss_vectorized(W, X, y, reg):
   # to reuse some of the intermediate values that you used to compute the     #
   # loss.                                                                     #
   #############################################################################
-  pass
+  weight2 = (margin_matrix > 0).sum(axis = 0) - 1
+  margin_matrix[margin_matrix > 0] = 1
+  margin_matrix[y, range(y.shape[0])] = -weight2
+  weight = margin_matrix
+
+  dW = X.T.dot(weight.T)
+  dW = dW / num_train
+  dW = dW + reg * W
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
