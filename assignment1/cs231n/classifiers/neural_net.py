@@ -74,7 +74,10 @@ class TwoLayerNet(object):
     # Store the result in the scores variable, which should be an array of      #
     # shape (N, C).                                                             #
     #############################################################################
-    pass
+    layer1 = X.dot(W1) + b1
+    layer1_1 = layer1 * (layer1 > 0)
+    layer2 = layer1_1.dot(W2) + b2
+    scores = layer2
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -92,7 +95,15 @@ class TwoLayerNet(object):
     # classifier loss. So that your results match ours, multiply the            #
     # regularization loss by 0.5                                                #
     #############################################################################
-    pass
+    scores = np.exp(scores)
+    nor = np.sum(scores, axis = 1)
+    scores = scores.T / nor
+    #score C * D
+    m_loss = np.choose(y, scores)
+    loss = -np.sum(np.log(m_loss))
+    loss = loss / N
+    reg_loss = 0.5 * reg * (np.sum(W1*W1) + np.sum(W2*W2))
+    loss = loss + reg_loss
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -104,7 +115,7 @@ class TwoLayerNet(object):
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
-    pass
+    
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
