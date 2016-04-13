@@ -86,6 +86,7 @@ class TwoLayerNet(object):
     if y is None:
       return scores
 
+    #print scores[1:5, 1:5]
     # Compute the loss
     loss = None
     #############################################################################
@@ -96,12 +97,16 @@ class TwoLayerNet(object):
     # regularization loss by 0.5                                                #
     #############################################################################
     layer4 = np.exp(layer3)
+    #print layer4[1:5, 1:5]
     layer4 = -layer3.T + np.log(np.sum(layer4, axis = 1))
+    #print layer4[1:5, 1:5]
     loss = np.sum(layer4[y, xrange(N)])
+    #print loss
     loss = loss / N
     reg_loss = 0.5 * reg * (np.sum(W1*W1) + np.sum(W2*W2))
     loss = loss + reg_loss
 
+    #print loss
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -204,6 +209,7 @@ class TwoLayerNet(object):
       self.params['b1'] -= learning_rate * grads['b1']
       self.params['W2'] -= learning_rate * grads['W2']
       self.params['b2'] -= learning_rate * grads['b2']
+
       #########################################################################
       #                             END OF YOUR CODE                          #
       #########################################################################
