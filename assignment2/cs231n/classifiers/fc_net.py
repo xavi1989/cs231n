@@ -85,13 +85,11 @@ class TwoLayerNet(object):
     W2, b2 = self.params['W2'], self.params['b2']
     reg = self.reg
 
-    layer1, cache1 = affine_forward(X, W1, b1)
+    layer1, cache1 = affine_relu_forward(X, W1, b1)
 
-    layer2, cache2 = relu_forward(layer1)
+    layer2, cache2 = affine_forward(layer1, W2, b2)
 
-    layer3, cache3 = affine_forward(layer2, W2, b2)
-
-    scores = layer3
+    scores = layer2
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
@@ -111,7 +109,7 @@ class TwoLayerNet(object):
     # automated tests, make sure that your L2 regularization includes a factor #
     # of 0.5 to simplify the expression for the gradient.                      #
     ############################################################################
-    loss, dout = softmax_loss(layer3, y)
+    loss, dout = softmax_loss(layer2, y)
 
     reg_loss = 0.5 * reg * (np.sum(W1*W1) + np.sum(W2*W2))
     loss += reg_loss
@@ -262,31 +260,35 @@ class FullyConnectedNet(object):
     # layer, etc.                                                              #
     ############################################################################
 
-    layers = {}
-    layers[0] = X
+    reg = self.reg
     caches = {}
+    layer_in = X
+    layer_out = None
+    layer_temp = None
+    j = 0
 
-    relu_layers = {}
-    relu_caches = {}
-
-    for i in xrange(self.num_layers-1):
+    w2_sum = 0
+    for i in xrange(self.num_layers):
         # Unpack variables from the params dictionary
         stringW = 'W%s' %(i+1)
         stringb = 'b%s' %(i+1)
         W, b = self.params[stringW], self.params[stringb]
-        
-        layers[i+1], caches[i+1] = affine_forward(layers[i], W, b)
-        
-        relu_layers[i+1], relu_caches[i+1] = relu_forward(layers[i+1])
+        w2_sum += np.sum(W * W)
 
-    i += 1
-    # Unpack variables from the params dictionary
-    stringW = 'W%s' %(i+1)
-    stringb = 'b%s' %(i+1)
-    W, b = self.params[stringW], self.params[stringb]
-    layers[i+1], caches[i+1] = affine_forward(layers[i], W, b)
-    scores = layers[i+1]
+        layer_out, caches[j] = affine_forward(layer_in, W, b)
+        j += 1
 
+        #print stringW + "  " + stringb + " forward %s cache %s" %(i+1, j-1)
+        if i == self.num_layers - 1:
+            continue;
+
+        layer_in = layer_out
+        layer_out = None
+        layer_out, caches[j] = relu_forward(layer_in)
+        j += 1
+        #print " relu %s cache %s" %(i+1, j-1)
+
+    scores = layer_out
 
     ############################################################################
     #                             END OF YOUR CODE                             #
@@ -310,7 +312,27 @@ class FullyConnectedNet(object):
     # automated tests, make sure that your L2 regularization includes a factor #
     # of 0.5 to simplify the expression for the gradient.                      #
     ############################################################################
-    pass
+    loss, dout = softmax_loss(layer_out, y)
+    loss += 0.5 * reg * w2_sum
+
+    for i in range(self.num_layers, 0, -1):
+        j -= 1
+        din, dw, db = affine_backward(dout, caches[j])
+        stringW = 'W%s' %(i)
+        stringb = 'b%s' %(i)
+        dw += reg * self.params[stringW]
+        grads[stringW] = dw
+        grads[stringb] = db
+        #print stringW + "  " + stringb + " backward %s cache %s" %(i, j)
+
+        if i == 1:
+            continue
+
+        dout = din
+
+        j -= 1
+        din = relu_backward(dout, caches[j])
+        #print " relu %s cache %s" %(i, j)
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
