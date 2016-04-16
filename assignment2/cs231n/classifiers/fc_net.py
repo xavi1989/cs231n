@@ -114,19 +114,17 @@ class TwoLayerNet(object):
     reg_loss = 0.5 * reg * (np.sum(W1*W1) + np.sum(W2*W2))
     loss += reg_loss
 
-    dx3, dw3, db3 = affine_backward(dout, cache3)
+    dx2, dw2, db2 = affine_backward(dout, cache2)
 
-    dx2 = relu_backward(dx3, cache2)
-
-    dx1, dw1, db1 = affine_backward(dx2, cache1)
+    dx1, dw1, db1 = affine_relu_backward(dx2, cache1)
 
     dw1 += reg * W1
-    dw3 += reg * W2
+    dw2 += reg * W2
 
     grads['W1'] = dw1
-    grads['W2'] = dw3
+    grads['W2'] = dw2
     grads['b1'] = db1
-    grads['b2'] = db3
+    grads['b2'] = db2
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
@@ -275,18 +273,12 @@ class FullyConnectedNet(object):
         W, b = self.params[stringW], self.params[stringb]
         w2_sum += np.sum(W * W)
 
-        layer_out, caches[j] = affine_forward(layer_in, W, b)
-        j += 1
-
-        #print stringW + "  " + stringb + " forward %s cache %s" %(i+1, j-1)
         if i == self.num_layers - 1:
-            continue;
+            layer_out, caches[i] = affine_forward(layer_in, W, b)
+        else:
+            layer_out, caches[i] = affine_relu_forward(layer_in, W, b)
 
         layer_in = layer_out
-        layer_out = None
-        layer_out, caches[j] = relu_forward(layer_in)
-        j += 1
-        #print " relu %s cache %s" %(i+1, j-1)
 
     scores = layer_out
 
@@ -312,27 +304,25 @@ class FullyConnectedNet(object):
     # automated tests, make sure that your L2 regularization includes a factor #
     # of 0.5 to simplify the expression for the gradient.                      #
     ############################################################################
-    loss, dout = softmax_loss(layer_out, y)
+    sftm_loss, sftm_grad = softmax_loss(layer_out, y)
+    loss = sftm_loss
     loss += 0.5 * reg * w2_sum
 
+    dout = sftm_grad
     for i in range(self.num_layers, 0, -1):
-        j -= 1
-        din, dw, db = affine_backward(dout, caches[j])
+        if i == self.num_layers:
+           din, dw, db = affine_backward(dout, caches[i-1])
+        else:
+           din, dw, db = affine_relu_backward(dout, caches[i-1])
+
+        dout = din
+
         stringW = 'W%s' %(i)
         stringb = 'b%s' %(i)
         dw += reg * self.params[stringW]
         grads[stringW] = dw
         grads[stringb] = db
-        #print stringW + "  " + stringb + " backward %s cache %s" %(i, j)
 
-        if i == 1:
-            continue
-
-        dout = din
-
-        j -= 1
-        din = relu_backward(dout, caches[j])
-        #print " relu %s cache %s" %(i, j)
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
