@@ -20,12 +20,11 @@ temp = rpart.control(minsplit = 40, cp = 0)
 fit = rpart(income ~ ., data = df.incomedata,
             method = 'class', control = temp)
 
-plotcp(fit)
-plot(fit)
+printcp(fit)
 
-fit.prune = prune(fit, cp = 0.002)
-plot(fit.prune)
-text(fit.prune)
+fit.prune = prune(fit, cp = 7.5883e-04)
+rpart.plot(fit.prune)
+
 
 #problem 2
 df.housetypedata = read.csv("Marketing/Housetype_Data.txt", header = FALSE)
@@ -39,14 +38,19 @@ df.housetypedata[, factors] = lapply(df.housetypedata[, factors], factor)
 temp = rpart.control(cp = 0)
 fit.housetype = rpart(typeofhouse ~ ., data = df.housetypedata,
             method = 'class', control = temp)
-plotcp(fit.housetype)
-plot(fit.housetype)
+printcp(fit.housetype)
 
-temp = rpart.control(cp = 1.7596e-03)
+temp = rpart.control(cp = 1.0828e-03)
 pruned.housetype = rpart(typeofhouse ~ ., data = df.housetypedata,
                       method = 'class', control = temp)
-plot(pruned.housetype)
-text(pruned.housetype)
+rpart.plot(pruned.housetype)
 
+summary(pruned.housetype)
+printcp(pruned.housetype)
 # error rate
+y_predict = predict(pruned.housetype,type="class")
+table(df.housetypedata$typeofhouse, y_predict)
 
+#0.2497
+1 - (4712 + 2008 + 42) / length(y_predict)
+# or error rate = 0.40985 * 0.62805 = 0.25
