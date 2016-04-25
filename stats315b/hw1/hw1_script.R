@@ -22,7 +22,7 @@ fit = rpart(income ~ ., data = df.incomedata,
 
 printcp(fit)
 
-fit.prune = prune(fit, cp = 7.5883e-04)
+fit.prune = prune(fit, cp = 1.7936e-03)
 rpart.plot(fit.prune)
 
 
