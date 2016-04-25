@@ -197,8 +197,15 @@ class FullyConnectedNet(object):
     for i in xrange(self.num_layers):
         stringW = 'W%s' %(i+1)
         stringb = 'b%s' %(i+1)
+
         self.params[stringW] = std * np.random.randn(dim[i], dim[i+1])
         self.params[stringb] = np.zeros(dim[i+1])
+
+        if self.use_batchnorm and i < self.num_layers - 1:
+            stringGamma = 'gamma%s' %(i+1)
+            stringBeta  = 'beta%s' %(i+1)
+            self.params[stringGamma] = np.random.normal( 1 , 1e-3, dim[i+1] )
+            self.params[stringBeta]  = np.zeros(dim[i+1])
 
     ############################################################################
     #                             END OF YOUR CODE                             #
@@ -260,6 +267,9 @@ class FullyConnectedNet(object):
 
     reg = self.reg
     caches = {}
+    caches_batch = {}
+    caches_relu = {}
+
     layer_in = X
     layer_out = None
     layer_temp = None
@@ -276,7 +286,15 @@ class FullyConnectedNet(object):
         if i == self.num_layers - 1:
             layer_out, caches[i] = affine_forward(layer_in, W, b)
         else:
-            layer_out, caches[i] = affine_relu_forward(layer_in, W, b)
+            if self.use_batchnorm:
+               stringGamma = 'gamma%s' %(i+1)
+               stringBeta  = 'beta%s' %(i+1)
+               gamma = self.params[stringGamma]
+               beta  = self.params[stringBeta]
+
+               layer_out, caches[i] = affine_batchnorm_relu_forward(layer_in, W, b, gamma, beta, self.bn_params[i])
+            else:
+               layer_out, caches[i] = affine_relu_forward(layer_in, W, b)
 
         layer_in = layer_out
 
@@ -312,8 +330,19 @@ class FullyConnectedNet(object):
     for i in range(self.num_layers, 0, -1):
         if i == self.num_layers:
            din, dw, db = affine_backward(dout, caches[i-1])
+           #dgamma = 0
+           #dbeta  = 0
         else:
-           din, dw, db = affine_relu_backward(dout, caches[i-1])
+            if self.use_batchnorm:
+                din, dw, db, dgamma, dbeta = affine_batchnorm_relu_backward(dout, caches[i-1])
+            else:
+                din, dw, db = affine_relu_backward(dout, caches[i-1])
+
+            if self.use_batchnorm:
+                stringGamma = 'gamma%s' %(i)
+                stringBeta  = 'beta%s' %(i)
+                grads[stringGamma] = dgamma
+                grads[stringBeta]  = dbeta
 
         dout = din
 
@@ -321,8 +350,7 @@ class FullyConnectedNet(object):
         stringb = 'b%s' %(i)
         dw += reg * self.params[stringW]
         grads[stringW] = dw
-        grads[stringb] = db
-
+        grads[stringb] = db 
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
