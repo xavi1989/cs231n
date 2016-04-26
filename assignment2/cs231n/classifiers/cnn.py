@@ -36,8 +36,7 @@ class ThreeLayerConvNet(object):
     self.params = {}
     self.reg = reg
     self.dtype = dtype
-    self.Hfilter = 3
-    self.Wfilter = 3
+
     ############################################################################
     # TODO: Initialize weights and biases for the three-layer convolutional    #
     # network. Weights should be initialized from a Gaussian with standard     #
@@ -48,7 +47,7 @@ class ThreeLayerConvNet(object):
     # hidden affine layer, and keys 'W3' and 'b3' for the weights and biases   #
     # of the output affine layer.                                              #
     ############################################################################
-    W1 = np.random.random([num_filters, input_dim[0], self.Hfilter, self.Wfilter]) * weight_scale
+    W1 = np.random.random([num_filters, input_dim[0], filter_size, filter_size]) * weight_scale
     b1 = np.zeros(num_filters)
 
     W2 = np.random.random([input_dim[1] * input_dim[2] / 4 * num_filters, hidden_dim]) * weight_scale
