@@ -64,13 +64,16 @@ class ThreeLayerConvNet(object):
     self.params['b1'] = b1
     self.params['gamma1'] = gamma1
     self.params['beta1'] = beta1
-    self.bn_params = bn_params
+    self.bn_params = {}
+    self.bn_params['mode'] = bn_params['mode']
 
     self.params['W2'] = W2
     self.params['b2'] = b2
     self.params['gamma2'] = gamma2
     self.params['beta2'] = beta2
-    self.bn_params2 = {'mode': 'train'}
+
+    self.bn_params2 = {}
+    self.bn_params2['mode'] = bn_params['mode']
 
     self.params['W3'] = W3
     self.params['b3'] = b3
