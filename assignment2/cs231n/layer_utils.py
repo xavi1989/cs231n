@@ -105,3 +105,24 @@ def conv_relu_pool_backward(dout, cache):
   dx, dw, db = conv_backward_fast(da, conv_cache)
   return dx, dw, db
 
+def conv_batchnorm_relu_pool_forward(X, w, b, conv_param, gamma, beta, bn_param, pool_param):
+  layer_in = X
+  layer_out, cache_l1 = conv_forward_fast(layer_in, w, b, conv_param)
+  layer_in, cache_l2 = spatial_batchnorm_forward(layer_out, gamma, beta, bn_param)
+  layer_out, cache_l3 = relu_forward(layer_in)
+  layer_in, cache_l4 = max_pool_forward_fast(layer_out, pool_param)
+
+  cache = (cache_l1, cache_l2, cache_l3, cache_l4)
+
+  return layer_in, cache
+
+def conv_batchnorm_relu_pool_backward(dout, cache):
+  cache_l1, cache_l2, cache_l3, cache_l4 = cache
+
+  din = max_pool_backward_fast(dout, cache_l4)
+  dout = relu_backward(din, cache_l3)
+  din, dgamma, dbeta = spatial_batchnorm_backward(dout, cache_l2)
+  dout, dw, db = conv_backward_fast(din, cache_l1)
+
+  return dout, dw, db, dgamma, dbeta
+
