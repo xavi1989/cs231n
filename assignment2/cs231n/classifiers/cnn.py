@@ -232,8 +232,8 @@ class MultiLayerConvNet(object):
     self.conv_params[0] = {}
     self.conv_params[0] = {'stride': 1, 'pad': (filter_size[0] - 1) / 2}
     #batch
-    self.params['gamma1'] = np.random.normal(0, weight_scale, num_filters[0])
-    self.params['beta1']  = np.random.normal(0, weight_scale, num_filters[0])
+    self.params['gamma1'] = np.random.normal(1, weight_scale, num_filters[0])
+    self.params['beta1']  = np.zeros(num_filters[0])
     self.bn_params[0] = {}
     self.bn_params[0]['mode'] = bn_params['mode']
       
@@ -253,7 +253,7 @@ class MultiLayerConvNet(object):
       # batch
       sgamma = "gamma%s" %(i+1)
       sbeta  = "beta%s"  %(i+1)
-      self.params[sgamma] = np.random.normal(0, weight_scale, num_filters[i])
+      self.params[sgamma] = np.random.normal(1, weight_scale, num_filters[i])
       self.params[sbeta]  = np.zeros(num_filters[i])
       self.bn_params[i] = {}
       self.bn_params[i]['mode'] = bn_params['mode']
@@ -276,7 +276,7 @@ class MultiLayerConvNet(object):
       #batch
       sgamma = "gamma%s" %(i+1)
       sbeta  = "beta%s"  %(i+1)
-      self.params[sgamma] = np.random.normal(0, weight_scale, afterdim)
+      self.params[sgamma] = np.random.normal(1, weight_scale, afterdim)
       self.params[sbeta]  = np.zeros(afterdim)
       self.bn_params[i] = {}
       self.bn_params[i]['mode'] = bn_params['mode']      
