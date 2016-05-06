@@ -202,10 +202,12 @@ class MultiLayerConvNet(object):
 
     self.num_convLayer = 1
     if isinstance(num_filters, list):
-      self.num_covLayer = len(num_filters)
+      self.num_convLayer = len(num_filters)
     else:
       num_filters = [num_filters]
       filter_size = [filter_size]
+
+    self.use_dropout = dropout > 0
 
     self.num_fullLayer = 1
     if isinstance(hidden_dim, list):
@@ -215,15 +217,16 @@ class MultiLayerConvNet(object):
 
     self.conv_params = {}
     self.bn_params = {}
+    self.dropout_param = {}
     self.pool_param = {}
     self.reg = reg
     self.dtype = dtype
 
     self.params = {}
     # conv filter parameters
-    # np.random.normal(0, scale = weight_scale, N, C, HH, WW) * num_covLayer
-    # conv_params 'stride' 'pad' * num_covLayer
-    # batchnorm bn_params 'mode' = 'train' * num_covLayer, gamma, beta
+    # np.random.normal(0, scale = weight_scale, N, C, HH, WW) * num_convLayer
+    # conv_params 'stride' 'pad' * num_convLayer
+    # batchnorm bn_params 'mode' = 'train' * num_convLayer, gamma, beta
     # pool_param 'pool_height' 'pool_width' 'stride' * 1
 
     # first layer
@@ -243,10 +246,11 @@ class MultiLayerConvNet(object):
     #remaining conv layer
     for i in range(1, self.num_convLayer, 1):
       # conv part
-      stringW = "W%s" %(i+1)
-      stringb = "b%s" %(i+1)
-      self.params[stringW] = np.random.normal(0, weight_scale, [num_filters[i], num_filters[i-1], filter_size[i]], filter_size[i])
-      self.params[stringb] = np.zeros(num_filter[i])
+      stringW = 'W%s' %(i+1)
+      stringb = 'b%s' %(i+1)
+
+      self.params[stringW] = np.random.normal(0, weight_scale, [num_filters[i], num_filters[i-1], filter_size[i], filter_size[i]])
+      self.params[stringb] = np.zeros(num_filters[i])
       self.conv_params[i] = {}
       self.conv_params[i] = {'stride': 1, 'pad': (filter_size[i] - 1) / 2}
 
@@ -279,7 +283,14 @@ class MultiLayerConvNet(object):
       self.params[sgamma] = np.random.normal(1, weight_scale, afterdim)
       self.params[sbeta]  = np.zeros(afterdim)
       self.bn_params[i] = {}
-      self.bn_params[i]['mode'] = bn_params['mode']      
+      self.bn_params[i]['mode'] = bn_params['mode']
+
+      # drop out
+      if self.use_dropout:
+          self.dropout_param[i] = {}
+          self.dropout_param[i] = {'mode': 'train', 'p': dropout}
+          if seed is not None:
+              self.dropout_param[i]['seed'] = seed
 
 
     #last layer, score layer
@@ -292,7 +303,6 @@ class MultiLayerConvNet(object):
     for k, v in self.params.iteritems():
       self.params[k] = v.astype(dtype)
 
-
   def loss(self, X, y=None):
     """
     Evaluate loss and gradient for the three-layer convolutional network.
@@ -302,8 +312,19 @@ class MultiLayerConvNet(object):
     X = X.astype(self.dtype)
     mode = 'test' if y is None else 'train'
 
+    # Set train/test mode for batchnorm params and dropout param since they
+    # behave differently during training and testing.
+    for k, v in self.bn_params.iteritems():
+        if v is not None:
+            v['mode'] = mode
+
+    for k, v in self.dropout_param.iteritems():
+        if v is not None:
+            v['mode'] = mode
+
     reg = self.reg
     caches = {}
+    caches_dropout = {}
     layer_in = X
     w2_sum = 0
     #forward pass
@@ -321,7 +342,7 @@ class MultiLayerConvNet(object):
       sbeta  = "beta%s"  %(i+1)
 
       w2_sum += np.sum(self.params[stringW] * self.params[stringW])
-      layer_out, caches[i] = conv_batchnorm_relu_pool_forward(layer_in, self.params[stringW], self.params[stringb], self.conv_params[i], self.params[sgamma], self.params[sbeta], self.bn_params[i])
+      layer_out, caches[i] = conv_batchnorm_relu_forward(layer_in, self.params[stringW], self.params[stringb], self.conv_params[i], self.params[sgamma], self.params[sbeta], self.bn_params[i])
       layer_in = layer_out
 
 
@@ -335,6 +356,11 @@ class MultiLayerConvNet(object):
       w2_sum += np.sum(self.params[stringW] * self.params[stringW])
       layer_out, caches[i] = affine_batchnorm_relu_forward(layer_in, self.params[stringW], self.params[stringb], self.params[sgamma], self.params[sbeta], self.bn_params[i])
       layer_in = layer_out
+
+      # drop out
+      if self.use_dropout:
+          layer_out, caches_dropout[i] = dropout_forward(layer_in, self.dropout_param[i])
+          layer_in = layer_out
 
     #last layer
     stringW = "W%s" %(self.num_convLayer + self.num_fullLayer+1)
@@ -357,12 +383,17 @@ class MultiLayerConvNet(object):
     # last layer
     stringW = "W%s" %(self.num_convLayer + self.num_fullLayer + 1)
     stringb = "b%s" %(self.num_convLayer + self.num_fullLayer + 1)
+
     din, grads[stringW], grads[stringb] = affine_backward(dout, caches[self.num_convLayer + self.num_fullLayer])
     grads[stringW] += reg * self.params[stringW]
     dout = din
 
     # hidden layer
     for i in range(self.num_convLayer + self.num_fullLayer - 1, self.num_convLayer-1, -1):
+      if self.use_dropout:
+          din = dropout_backward(dout, caches_dropout[i])
+          dout = din
+
       stringW = "W%s" %(i+1)
       stringb = "b%s" %(i+1)
       sgamma = "gamma%s" %(i+1)
@@ -377,7 +408,7 @@ class MultiLayerConvNet(object):
       stringW = "W%s" %(i+1)
       stringb = "b%s" %(i+1)
       sgamma = "gamma%s" %(i+1)
-      sbeta  = "beta%s"  %(i+1)      
+      sbeta  = "beta%s"  %(i+1)
 
       din, grads[stringW], grads[stringb], grads[sgamma], grads[sbeta] =  conv_batchnorm_relu_backward(dout, caches[i])
       grads[stringW] += reg * self.params[stringW]

@@ -122,7 +122,7 @@ def conv_batchnorm_relu_backward(dout, cache):
   dout, dgamma, dbeta = spatial_batchnorm_backward(din, cache_l2)
   din, dw, db = conv_backward_fast(dout, cache_l1)
 
-  return dout, dw, db, dgamma, dbeta
+  return din, dw, db, dgamma, dbeta
 
 def conv_batchnorm_relu_pool_forward(X, w, b, conv_param, gamma, beta, bn_param, pool_param):
   layer_in = X
