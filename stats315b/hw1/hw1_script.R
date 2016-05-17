@@ -54,3 +54,6 @@ table(df.housetypedata$typeofhouse, y_predict)
 #0.2497
 1 - (4712 + 2008 + 42) / length(y_predict)
 # or error rate = 0.40985 * 0.62805 = 0.25
+
+
+function()
