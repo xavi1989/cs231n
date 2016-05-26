@@ -9,6 +9,9 @@ set.seed(100)
 spam.train = read.csv("Marketing/Spam_Train.txt", header = FALSE)
 spam.test = read.csv("Marketing/Spam.Test.txt", header = FALSE)
 
+spam_predictors <- read.csv("Marketing/Spam_Names.txt",skip = 33, sep =":",strip.white = TRUE, header=FALSE, colClasses = "character")
+spam_names = c(spam_predictors[,1],'y')
+
 spamnames = c("make", "address", "all", "3d", "our", "over", "remove",
           "internet","order", "mail", "receive", "will",
           "people", "report", "addresses","free", "business",
@@ -117,7 +120,7 @@ occupationNames = c("occupation", "home.type", "sex", "marital.status", "age",
                     "edu", "annual.income", "time.live", "dual.income",
                     "num.person", "p.under18", "house.status", "ethnic", "language")
 colnames(occupation.data) = occupationNames
-factors = c(1, 2, 3, 4, 5, 6, 9, 12, 13, 14)
+factors = c(1, 2, 3, 4, 5, 6, 8, 9, 12, 13, 14)
 occupation.data[, factors] = lapply(occupation.data[, factors], factor)
 
 index.train = sample(1:nrow(occupation.data), nrow(occupation.data) * 0.8)
