@@ -11,18 +11,20 @@ spam_df = read.csv("Spam/Spam_Data.txt", header = FALSE)
 colnames(spam_df) = spam_names
 
 #data pre-process
-meanSpam = apply(spam_df[, 1:57], 2, mean)
-sdSpam = sqrt(apply(spam_df[, 1:57], 2, var))
+spam_df_processed = array(dim = c(nrow(spam_df), ncol(spam_df)))
+spam_df_processed = as.data.frame(spam_df_processed)
+for (i in 1:57) {
+  spam_df_processed[,i]<-scale(spam_df[,i])
+}
 
-spam_df_processed = (spam_df[, 1:57] - meanSpam) / sdSpam
-spam_df_processed = cbind(spam_df_processed, 'type' = spam_df[, 58])
+spam_df_processed[, 58] = spam_df[, 58]
+colnames(spam_df_processed) = spam_names
 
 spam_df_processed$type = class.ind(spam_df_processed$type)
 set.seed(100)
-testIndex = sample(1:nrow(spam_df), nrow(spam_df_processed) * 0.1)
+trainIndex = sample(1:nrow(spam_df), nrow(spam_df_processed) * 0.9)
 
-spam_test = spam_df_processed[testIndex,]
-spam_train = spam_df_processed[-testIndex, ]
+spam_test = spam_df_processed[-trainIndex,]
 
 nHidden = 10
 nDiffsets = 15
@@ -32,6 +34,8 @@ maxRate = 0
 for (i in seq(1, nHidden, by = 1)) {
   for (j in seq(1, nDiffsets, by = 1)) {
     set.seed(j*i)
+    index = sample(trainIndex, length(trainIndex), replace = FALSE)
+    spam_train = spam_df_processed[index, ]
     nn = nnet(type ~ ., data = spam_train, size = i,
               softmax = TRUE, maxit = 1000, trace = F,
               rang = 0.5)
