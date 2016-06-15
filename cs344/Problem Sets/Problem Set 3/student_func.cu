@@ -472,6 +472,51 @@ void scan_kernel(unsigned int* d_bins, int size) {
 
     }
 }
+
+__global__
+void blelloch_scan_kernel(unsigned int *d_bins, int size) {
+  extern __shared__ int shared[];
+
+  int index = threadIdx.x + blockDim.x * blockIdx.x;
+  if(index > size)
+    return;
+
+  shared[index] = d_bins[index];
+  __syncthreads();
+  int s = 0;
+
+  for(s=1; s<size; s<<=1) {
+    if((index + 1)%(2*s) == 0) {
+      if(index - s >= 0) {
+        shared[index] = shared[index] + shared[index - s];
+      }
+    }
+
+    __syncthreads();
+  }
+
+  // downsweep
+  if(index == size-1) {
+    shared_scan[index] = 0;
+  }
+
+  __syncthreads();
+
+  for(s = s/2; s>0; s>>=1) {
+    if((index + 1) % (2*s) == 0) {
+      if(index - s >=0) {
+        int tmp = shared[index - s];
+        shared[index - s] = shared[index];
+        shared[index] = shared[index] + tmp;
+      }
+    }
+
+    __syncthreads();
+  }
+
+  d_bins[index] = shared[index];
+}
+
 // calculate reduce max or min and stick the value in d_answer.
 __global__
 void reduce_minmax_kernel(const float* const d_in, float* d_out, const size_t size, int minmax) {
