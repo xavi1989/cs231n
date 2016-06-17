@@ -42,6 +42,30 @@
 
  */
 
+__global__ 
+void scan_kernel(unsigned *d_in, unsigned int *d_out, const size_t size) {
+    int mid = threadIdx.x + blockDim.x * blockIdx.x;
+    if(mid >= size)
+        return;
+    d_out[mid] = d_in[mid];
+    __syncthreads();
+
+    for(int s = 1; s <= size; s *= 2) {
+          int spot = mid - s; 
+         
+          unsigned int val = 0;
+          if(spot >= 0)
+              val = d_out[spot];
+          __syncthreads();
+          if(spot >= 0)
+              d_out[mid] += val;
+          __syncthreads();
+
+    }
+
+    d_out[mid] = d_out[mid] - d_in[mid];
+}
+
 __global__
 void exclusive_scan_kernel(unsigned *d_in, unsigned int *d_out, const size_t size) {
   // 1d of blockDim
@@ -49,7 +73,10 @@ void exclusive_scan_kernel(unsigned *d_in, unsigned int *d_out, const size_t siz
   if(index >= size)
     return;
 
-  int s = 0;
+  d_out[index] = 1; //d_in[index];
+  __syncthreads();
+
+  size_t s = 0;
   for(s=1; s<size; s<<=1) {
     if((index + 1)%(2*s) == 0) {
       if(index - s >= 0) {
@@ -93,7 +120,8 @@ void predicate_kernel(unsigned int *d_in,
 
     if(count) { // get 0
         d_out[id] = bit == 0 ? 1 : 0;
-        atomicAdd(count, 1);
+        if(bit == 0)
+          atomicAdd(count, 1);
     } else {
         d_out[id] = bit == 1 ? 1 : 0;
     }
@@ -121,6 +149,11 @@ void scatter_kernel(unsigned int* const d_inputVals,
 
 #include <stdio.h>
 
+// gives you a good max size for n/d
+int get_max_size(int n, int d) {
+    return (int)ceil( (float)n/(float)d ) + 1;
+}
+
 void your_sort(unsigned int* const d_inputVals,
                unsigned int* const d_inputPos,
                unsigned int* const d_outputVals,
@@ -136,7 +169,7 @@ void your_sort(unsigned int* const d_inputVals,
 
   printf("numElems %d \n", (int)numElems);
   for(int i=0; i<50; i++) {
-    printf("%d \n", in[i]);
+    //printf("%d \n", in[i]);
   }
 
   dim3 blockdim(1024);
@@ -147,41 +180,73 @@ void your_sort(unsigned int* const d_inputVals,
   checkCudaErrors(cudaMalloc(&d_inPos,  sizeof(int) * numElems));
 
   checkCudaErrors(cudaMalloc(&d_out,    sizeof(int) * numElems));
-  checkCudaErrors(cudaMalloc(&d_outPos, sizeof(int) * numElems));
+  checkCudaErrors(cudaMemset(d_out, 0,  sizeof(int) * numElems));
+
+  checkCudaErrors(cudaMalloc(&d_outPos,   sizeof(int) * numElems));
+  checkCudaErrors(cudaMemset(d_outPos, 0, sizeof(int) * numElems));
 
   checkCudaErrors(cudaMalloc(&d_scan,   sizeof(int) * numElems));
+  checkCudaErrors(cudaMemset(d_scan, 0, sizeof(int) * numElems));
+
   checkCudaErrors(cudaMalloc(&d_offset, sizeof(int) * numElems));
+  checkCudaErrors(cudaMemset(d_offset, 0, sizeof(int) * numElems));
 
   checkCudaErrors(cudaMemcpy(d_in,    d_inputVals, sizeof(int) * numElems, cudaMemcpyDeviceToDevice));
   checkCudaErrors(cudaMemcpy(d_inPos, d_inputPos,  sizeof(int) * numElems, cudaMemcpyDeviceToDevice));
 
   int *d_count;
+  int count;
   checkCudaErrors(cudaMalloc(&d_count, sizeof(int)));
 
   unsigned int mask = 0x01;
   unsigned int *tmp;
 
-  for(int i=0; i<32; i++) {
+  for(int j=0; j<32; j++) {
     // predicative kernel
-    mask <<= i;
+    printf("j is %d 111111111111\n", j);
+    mask <<= j;
     // bit 0
+    count = 0;
+    checkCudaErrors(cudaMemcpy(d_count, &count,    sizeof(int), cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaGetLastError());
+  checkCudaErrors(cudaMemcpy(in, d_in,  sizeof(int) * numElems, cudaMemcpyDeviceToHost));
+
+  printf("numElems %d \n", (int)numElems);
+  for(int i=0; i<10; i++) {
+    //printf("%d \n", in[i]);
+  }
+
     predicate_kernel<<<griddim, blockdim>>>(d_in, d_scan, numElems, mask , d_count);
+    cudaDeviceSynchronize();
 
   checkCudaErrors(cudaMemcpy(offset, d_scan,  sizeof(unsigned int) * numElems, cudaMemcpyDeviceToHost));
 
   printf("0 1 array \n");
-  for(int i=0; i<50; i++) {
+  for(int i=0; i<10; i++) {
     printf("%d \n", offset[i]);
   }
+    checkCudaErrors(cudaGetLastError());
 
-    exclusive_scan_kernel<<<griddim, blockdim>>>(d_scan, d_offset, numElems);
+
+    for(int i = 0; i < get_max_size(numElems, blockdim.x); i++) {
+        exclusive_scan_kernel<<<dim3(1), blockdim>>>(d_scan, d_offset, numElems);
+        cudaDeviceSynchronize(); checkCudaErrors(cudaGetLastError());
+    
+    }
+
+
+
+    cudaDeviceSynchronize();
+    checkCudaErrors(cudaGetLastError());
 
   checkCudaErrors(cudaMemcpy(offset, d_offset,  sizeof(unsigned int) * numElems, cudaMemcpyDeviceToHost));
 
     printf("offset \n");
-  for(int i=0; i<50; i++) {
+  for(int i=0; i<10; i++) {
     printf("%d \n", offset[i]);
   }
+    checkCudaErrors(cudaMemcpy(&count, d_count,    sizeof(int), cudaMemcpyDeviceToHost));
+    printf("count is %d \n", count);
 
     scatter_kernel<<<griddim, blockdim>>>(d_in, d_inPos,
                                           d_out, d_outPos,
@@ -189,19 +254,29 @@ void your_sort(unsigned int* const d_inputVals,
                                           d_scan,
                                           d_offset, NULL);
 
-    int count = 0;
-    cudaMemcpy(&count, d_count,    sizeof(int), cudaMemcpyDeviceToHost);
-    //printf("count is %d \n", count);
-
+    cudaDeviceSynchronize();
+    checkCudaErrors(cudaGetLastError());
     // bit 1
     predicate_kernel<<<griddim, blockdim>>>(d_in, d_scan, numElems, mask , NULL);
-    exclusive_scan_kernel<<<griddim, blockdim>>>(d_scan, d_offset, numElems);
+    cudaDeviceSynchronize();
+    checkCudaErrors(cudaGetLastError());
+
+    for(int i = 0; i < get_max_size(numElems, blockdim.x); i++) {
+        exclusive_scan_kernel<<<dim3(1), blockdim>>>(d_scan, d_offset, numElems);
+        cudaDeviceSynchronize(); checkCudaErrors(cudaGetLastError());
+    
+    }
+
+    cudaDeviceSynchronize();
+    checkCudaErrors(cudaGetLastError());
 
     scatter_kernel<<<griddim, blockdim>>>(d_in, d_inPos,
                                           d_out, d_outPos,
                                           numElems,
                                           d_scan,
                                           d_offset, d_count);
+    cudaDeviceSynchronize();
+    checkCudaErrors(cudaGetLastError());
 
     tmp = d_in;
     d_in = d_out;
@@ -215,11 +290,11 @@ void your_sort(unsigned int* const d_inputVals,
 
   cudaMemcpy(d_outputVals, d_out,    sizeof(unsigned int)*numElems, cudaMemcpyDeviceToDevice);
   cudaMemcpy(d_outputPos,  d_outPos, sizeof(unsigned int)*numElems, cudaMemcpyDeviceToDevice);
-#if 0
+
   if(d_in) {
     checkCudaErrors(cudaFree(d_in));
   }
-#endif
+
   if(d_out) {
     checkCudaErrors(cudaFree(d_out));
   }
