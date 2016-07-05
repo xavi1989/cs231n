@@ -1,0 +1,1 @@
+/usr/bin/cc      CMakeFiles/dinoshade.dir/dinoshade.c.o  -o dinoshade -rdynamic -lGLU -lGL -lSM -lICE -lX11 -lXext -lglut -lXmu -lXi -lm 

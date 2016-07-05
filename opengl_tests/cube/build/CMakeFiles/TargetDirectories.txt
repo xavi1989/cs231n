@@ -1,0 +1,1 @@
+/home/wxia/wei_project/cs231n/opengl_tests/cube/build/CMakeFiles/cube.dir

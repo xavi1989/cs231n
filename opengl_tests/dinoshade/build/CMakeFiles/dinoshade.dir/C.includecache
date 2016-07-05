@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/wxia/wei_project/cs231n/opengl_tests/dinoshade/dinoshade.c
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+math.h
+-
+GL/glut.h
+-
+
