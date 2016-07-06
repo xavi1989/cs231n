@@ -1,0 +1,1 @@
+/usr/bin/cc      CMakeFiles/teapot.dir/teapot.c.o  -o teapot -rdynamic -lGLU -lGL -lSM -lICE -lX11 -lXext -lglut -lXmu -lXi 

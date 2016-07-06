@@ -1,0 +1,14 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/wxia/wei_project/cs231n/opengl_tests/teapot/teapot.c
+stdio.h
+-
+GL/glut.h
+/home/wxia/wei_project/cs231n/opengl_tests/teapot/GL/glut.h
+
