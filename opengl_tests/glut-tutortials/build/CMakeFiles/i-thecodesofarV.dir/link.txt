@@ -1,0 +1,1 @@
+/usr/bin/c++       CMakeFiles/i-thecodesofarV.dir/i-thecodesofarV.cpp.o  -o i-thecodesofarV -rdynamic -lGLU -lGL -lSM -lICE -lX11 -lXext -lglut -lXmu -lXi 

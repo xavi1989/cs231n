@@ -1,0 +1,1 @@
+/usr/bin/c++       CMakeFiles/e-thecodesofar.dir/e-thecodesofar.cpp.o  -o e-thecodesofar -rdynamic -lGLU -lGL -lSM -lICE -lX11 -lXext -lglut -lXmu -lXi 

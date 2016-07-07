@@ -1,0 +1,12 @@
+/home/wxia/wei_project/cs231n/opengl_tests/GLUT-Tutorial/source/build/CMakeFiles/a-initialization.dir
+/home/wxia/wei_project/cs231n/opengl_tests/GLUT-Tutorial/source/build/CMakeFiles/b-reshape.dir
+/home/wxia/wei_project/cs231n/opengl_tests/GLUT-Tutorial/source/build/CMakeFiles/c-animation.dir
+/home/wxia/wei_project/cs231n/opengl_tests/GLUT-Tutorial/source/build/CMakeFiles/d-keyboard.dir
+/home/wxia/wei_project/cs231n/opengl_tests/GLUT-Tutorial/source/build/CMakeFiles/e-thecodesofar.dir
+/home/wxia/wei_project/cs231n/opengl_tests/GLUT-Tutorial/source/build/CMakeFiles/f-thecodesofarII.dir
+/home/wxia/wei_project/cs231n/opengl_tests/GLUT-Tutorial/source/build/CMakeFiles/g-thecodesofarIII.dir
+/home/wxia/wei_project/cs231n/opengl_tests/GLUT-Tutorial/source/build/CMakeFiles/h-thecodesofarIV.dir
+/home/wxia/wei_project/cs231n/opengl_tests/GLUT-Tutorial/source/build/CMakeFiles/i-thecodesofarV.dir
+/home/wxia/wei_project/cs231n/opengl_tests/GLUT-Tutorial/source/build/CMakeFiles/j-thecodesofarVI.dir
+/home/wxia/wei_project/cs231n/opengl_tests/GLUT-Tutorial/source/build/CMakeFiles/k-subwindowscode.dir
+/home/wxia/wei_project/cs231n/opengl_tests/GLUT-Tutorial/source/build/CMakeFiles/l-thecodesofarVII.dir

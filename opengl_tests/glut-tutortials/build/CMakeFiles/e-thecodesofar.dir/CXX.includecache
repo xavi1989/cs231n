@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/wxia/wei_project/cs231n/opengl_tests/GLUT-Tutorial/source/e-thecodesofar.cpp
+stdlib.h
+-
+math.h
+-
+GLUT/glut.h
+-
+GL/glut.h
+-
+

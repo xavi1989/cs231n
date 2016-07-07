@@ -1,0 +1,1 @@
+/usr/bin/c++       CMakeFiles/g-thecodesofarIII.dir/g-thecodesofarIII.cpp.o  -o g-thecodesofarIII -rdynamic -lGLU -lGL -lSM -lICE -lX11 -lXext -lglut -lXmu -lXi 

@@ -1,0 +1,1 @@
+/usr/bin/c++       CMakeFiles/l-thecodesofarVII.dir/l-thecodesofarVII.cpp.o  -o l-thecodesofarVII -rdynamic -lGLU -lGL -lSM -lICE -lX11 -lXext -lglut -lXmu -lXi 

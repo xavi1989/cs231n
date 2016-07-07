@@ -1,0 +1,1 @@
+/usr/bin/c++       CMakeFiles/f-thecodesofarII.dir/f-thecodesofarII.cpp.o  -o f-thecodesofarII -rdynamic -lGLU -lGL -lSM -lICE -lX11 -lXext -lglut -lXmu -lXi 

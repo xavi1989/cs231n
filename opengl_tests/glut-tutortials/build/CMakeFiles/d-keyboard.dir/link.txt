@@ -1,0 +1,1 @@
+/usr/bin/c++       CMakeFiles/d-keyboard.dir/d-keyboard.cpp.o  -o d-keyboard -rdynamic -lGLU -lGL -lSM -lICE -lX11 -lXext -lglut -lXmu -lXi 

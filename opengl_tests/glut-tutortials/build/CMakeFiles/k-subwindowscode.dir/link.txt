@@ -1,0 +1,1 @@
+/usr/bin/c++       CMakeFiles/k-subwindowscode.dir/k-subwindowscode.cpp.o  -o k-subwindowscode -rdynamic -lGLU -lGL -lSM -lICE -lX11 -lXext -lglut -lXmu -lXi 

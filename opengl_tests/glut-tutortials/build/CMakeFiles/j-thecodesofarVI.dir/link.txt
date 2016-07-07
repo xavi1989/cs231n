@@ -1,0 +1,1 @@
+/usr/bin/c++       CMakeFiles/j-thecodesofarVI.dir/j-thecodesofarVI.cpp.o  -o j-thecodesofarVI -rdynamic -lGLU -lGL -lSM -lICE -lX11 -lXext -lglut -lXmu -lXi 

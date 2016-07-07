@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/wxia/wei_project/cs231n/opengl_tests/GLUT-Tutorial/source/d-keyboard.cpp
+stdlib.h
+-
+GLUT/glut.h
+-
+GL/glut.h
+-
+

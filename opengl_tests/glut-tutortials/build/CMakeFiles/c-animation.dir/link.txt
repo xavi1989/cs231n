@@ -1,0 +1,1 @@
+/usr/bin/c++       CMakeFiles/c-animation.dir/c-animation.cpp.o  -o c-animation -rdynamic -lGLU -lGL -lSM -lICE -lX11 -lXext -lglut -lXmu -lXi 

@@ -1,0 +1,1 @@
+/usr/bin/c++       CMakeFiles/a-initialization.dir/a-initialization.cpp.o  -o a-initialization -rdynamic -lGLU -lGL -lSM -lICE -lX11 -lXext -lglut -lXmu -lXi 
