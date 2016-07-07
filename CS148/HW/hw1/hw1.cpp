@@ -34,32 +34,23 @@ void renderPixel(int x, int y) {
 	image[x][y] = 1;
 
 	// TODO:  light up the pixel's symmetric counterpart
-  image[x][size - y] = 1;
-  image[size - x][size - y] = 1;
-  image[size - y][x] = 1;
-
-
   if(x != y) {
     image[y][x] = 1;
-    image[y][size - x] = 1;
-    image[size - y][size -x] = 1;
-    image[size - x][y] = 1;
   }
 
 }
 
 void rasterizeArc(int radius) {
 	// TODO:  rasterize the arc using renderPixel to light up pixels
-  radius = (size + 1) / 2;
-  int x = radius;
-  int y = size;
+  int x = 0;
+  int y = radius;
   int d = 1 - radius;
 
   renderPixel(x, y);
 
   while(y > x) {
     if(d < 0) {
-      d += 2 * (x - radius) + 3; // select E
+      d += 2 * x + 3; // select E
     } else {
       d += 2 * (x - y) + 5; // select SE
       y--;
