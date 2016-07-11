@@ -75,7 +75,7 @@ int main()
     Shader shader("shader.vs", "shader.frag");
 
     // Load models
-    Model ourModel(FileSystem::getPath("resources/objects/nanosuit/nanosuit.obj").c_str());
+    Model ourModel(FileSystem::getPath("../Model/025-Pikachu/Pikachu.obj").c_str());
 
     // Draw in wireframe
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
