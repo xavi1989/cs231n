@@ -2,13 +2,13 @@
 #include "PlaneTracker.hpp"
 #include "Augmentor.hpp"
 
-class ARApp
+class PM
 {
 public:
     
-    ARApp();
+    PM();
     
-    virtual ~ARApp() = default;
+    virtual ~PM() = default;
     
     void initialize(ColorImage& frame);
     

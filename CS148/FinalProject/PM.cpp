@@ -1,11 +1,11 @@
 #include "PM.hpp"
 
-ARApp::ARApp()
+PM::PM()
 {
     has_been_initialized_ = false;
 }
 
-void ARApp::initialize(ColorImage &frame)
+void PM::initialize(ColorImage &frame)
 {
     //Initialize tracking subsystem.
     convert_to_grayscale(frame, grayscaleFrame_);
@@ -25,7 +25,7 @@ void ARApp::initialize(ColorImage &frame)
     has_been_initialized_ = true;
 }
 
-void ARApp::process_frame(ColorImage& frame)
+void PM::process_frame(ColorImage& frame)
 {
     assert(has_been_initialized_ && "Must be initialized before calling process_frame!");
 
@@ -38,7 +38,7 @@ void ARApp::process_frame(ColorImage& frame)
     augmentor_.augment(frame, H, !tracking_successful);
 }
 
-void ARApp::convert_to_grayscale(const ColorImage& colorImage, GrayscaleImage& grayscaleImage)
+void PM::convert_to_grayscale(const ColorImage& colorImage, GrayscaleImage& grayscaleImage)
 {
     assert(colorImage.type()==CV_8UC4 && "Frame type must be BGRA!");
     cv::cvtColor(colorImage, grayscaleImage, CV_BGRA2GRAY);
