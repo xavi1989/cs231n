@@ -24,7 +24,17 @@ void KLTTracker::initialize(const GrayscaleImage& frame, const PointArray& keypo
         
         if(!use_my_harris_detector)
         {
+            int maxCorners = max_points_;
+            double qualityLevel = 0.01;
+            double minDistance = 10;
+            int blockSize = win_size_;
+            bool useHarrisDetector = false;
+            double k = 0.04;
+
             // Use OpenCV's goodFeaturesToTrack function.
+            cv::goodFeaturesToTrack(frame, preKeypoints_, maxCorners,
+                                    qualityLevel, minDistance, cv::Mat(),
+                                    blockSize, useHarrisDetector, k);
         }
         else
         {
@@ -32,11 +42,16 @@ void KLTTracker::initialize(const GrayscaleImage& frame, const PointArray& keypo
         }
         
         // Optional: use cornerSubPix to refine your corners.
+        cv::cornerSubpix(frame, preKeypoints_, Size(block_size, block_size),
+                        Size(-1, -1), term_crit_);
     }
     else
     {
         // Use the provided keypoints as reference.
+        preKeypoints_ = keypoints;
     }
+
+    preFrame_ = frame;
 }
 
 // Track the points in the provided grayscale frame. If you find sufficiently many
@@ -46,12 +61,30 @@ void KLTTracker::track(const GrayscaleImage& frame, MatchHandler& match_handler)
 {    
     // Step 1 : Compute optical flow.
     // Hint   : calcOpticalFlowPyrLK
-    
+    std::vector<uchar> status;
+    std::vector<uchar> errors;
+    std::vector<cv::Point2f> srcPoints;
+    std::vector<cv::Point2f> dstPoints;
+
+    calcOpticalFlowPyrLK(preFrame_, frame,
+                         preKeypoints_, keypoints_,
+                         status, errors,
+                         Size(win_size_, win_size_), 3,
+                         term_crit_, 0);
     // Step 2 : Prune points based on the status returned by calcOpticalFlowPyrLK.
-    
+    for(size_t i=0; i<status.size(); i++) {
+        if(status[i] && !errors[i]) {
+            srcPoints.push_back(preKeypoints_[i]);
+            dstPoints.push_back(keypoints_[i]);
+        }
+    }
+
     // Step 3 : Call the match handler with the correspondences.
-    
+    match_handler(srcPoints, dstPoints);
+
     // Step 4 : Update your internal variables.
+    preFrame_ = frame;
+    preKeypoints_ = keypoints_;
 }
 
 // Given a source image (src), create and populate the provided score_matrix such

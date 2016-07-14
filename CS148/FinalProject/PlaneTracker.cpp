@@ -21,7 +21,30 @@ void PlaneTracker::initialize(const GrayscaleImage &frame)
 // Hint: Introduce a member variable in the class for an "internal" homography.
 bool PlaneTracker::estimate_homography(const PointArray& src_points, const PointArray& dst_points, Homography& H)
 {
-    return false;
+    if(src_points.size() != dst_points.size() ||
+       src_points.size() < 3) {
+        return false;
+    }
+
+    double ransacReprojThreashold = 3;
+    std::vector<unsigned char> inliersMask(src_points.size());
+    int count = 0;
+    float ratio = 0;
+    float inlierThreshold = 0.75;
+
+    H = findHomography(src_points, dst_points, cv::CV_RANSAC, ransacReprojThreashold, inliersMask);
+
+    for(size_t i=0; i<inliersMask.size(); i++) {
+        if(inliersMask[i])
+            count++;
+    }
+
+    ratio = (float)count / inliersMask.size();
+
+    if(ratio < inlierThreshold)
+        return false;
+
+    return true;
 }
 
 // Implement the tracking logic as described on the project page.
@@ -43,8 +66,12 @@ bool PlaneTracker::track(const GrayscaleImage &frame, Homography &H)
     };
     
     // For 2.1: Just forward the call to klt_tracker.
-    
+    this->klt_tracker_.track(frame, match_handler);
+
     // For 2.2: Introduce the relocalization logic.    
-    
+    if(!estimation_successful) {
+        
+    }
+
     return estimation_successful;
 }

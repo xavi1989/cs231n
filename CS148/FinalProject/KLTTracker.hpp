@@ -18,6 +18,12 @@ private:
     int max_points_;
     
     cv::Size win_size_;
+
+    PointArray& keypoints_;
+
+    PointArray& preKeypoints_;
+
+    GrayscaleImage& preFrame_;
     
     cv::TermCriteria term_crit_;
     
