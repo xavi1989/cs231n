@@ -1,9 +1,6 @@
-#include "ar/CornerDetection.hpp"
+#include "CornerDetection.hpp"
 
 using namespace cv;
-
-namespace ar
-{
 
 template<typename T> struct greaterThanPtr
 {
@@ -33,7 +30,7 @@ void DetectGoodFeaturesToTrack(const GrayscaleImage& image,
     dilate(eig, tmp, Mat());
     
     Size imgsize = image.size();
-    vector<const float*> tmpCorners;
+    std::vector<const float*> tmpCorners;
     
     // Collect list of pointers to features - put them into temporary image.
     for( int y = 1; y < imgsize.height - 1; y++ )
@@ -50,8 +47,8 @@ void DetectGoodFeaturesToTrack(const GrayscaleImage& image,
         }
     }
     
-    sort(tmpCorners, greaterThanPtr<float>());
-    vector<Point2f> corners;
+    std::sort(tmpCorners, greaterThanPtr<float>());
+    std::vector<Point2f> corners;
     size_t i, j, total = tmpCorners.size(), ncorners = 0;
     
     if(minDistance >= 1)
@@ -94,7 +91,7 @@ void DetectGoodFeaturesToTrack(const GrayscaleImage& image,
             {
                 for( int xx = x1; xx <= x2; xx++ )
                 {
-                    vector <Point2f> &m = grid[yy*grid_width + xx];
+                    std::vector <Point2f> &m = grid[yy*grid_width + xx];
                     
                     if( m.size() )
                     {
@@ -143,6 +140,4 @@ void DetectGoodFeaturesToTrack(const GrayscaleImage& image,
     }
     
     Mat(corners).convertTo(_corners, CV_32F);
-}
-
 }

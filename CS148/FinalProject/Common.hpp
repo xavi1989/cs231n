@@ -2,6 +2,7 @@
 #include <cassert>
 #include <functional>
 #include <memory>
+#include <vector>
 
 typedef cv::Matx33f Homography;
 

@@ -38,7 +38,7 @@ bool PlaneTracker::track(const GrayscaleImage &frame, Homography &H)
         }
         else
         {
-            LOG_ERROR(TAG, "Tracker provided less than 4 correspondences for homography estimation!");
+            printf(TAG, "Tracker provided less than 4 correspondences for homography estimation!");
         }
     };
     

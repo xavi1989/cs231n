@@ -1,16 +1,17 @@
 cmake_minimum_required (VERSION 2.8)
 cmake_policy(VERSION 2.8)
 
-project (PM)
+project (CS148_final)
+
+list(APPEND CMAKE_CXX_FLAGS "-std=c++11")
 
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
-set(LIBS ${OpenCV_LIBS}
+set(LIBS ${OpenCV_LIBS})
 
 file(GLOB SOURCE
-    "src/${CHAPTER}/${DEMO}/*.h"
-    "src/${CHAPTER}/${DEMO}/*.cpp"
+    "*.cpp"
 )
 
 add_executable(${PROJECT_NAME} ${SOURCE})

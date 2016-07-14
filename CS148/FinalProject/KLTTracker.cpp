@@ -109,7 +109,5 @@ void KLTTracker::debug_corner_detector()
     }
     
     cv::imshow("Detected Corners", debug_image);
-    waitKey();
-}
-
+    //cv::waitKey();
 }

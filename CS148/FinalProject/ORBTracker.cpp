@@ -12,7 +12,7 @@ ORBTracker::ORBTracker()
 // Initialize your tracking using the provided image.
 void ORBTracker::initialize(const GrayscaleImage& frame)
 {
-    LOG_DEBUG(TAG, "Initialized.");
+    printf(TAG, "Initialized.");
 }
 
 // Initialize your tracking subsystem using the provided frame.

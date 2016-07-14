@@ -26,8 +26,6 @@ private:
     PlaneTracker tracker_;
     
     Augmentor augmentor_;
-    
-    Classifier classifier_;
-    
+
     void convert_to_grayscale(const ColorImage& colorImage, GrayscaleImage& grayscaleImage);
 };
