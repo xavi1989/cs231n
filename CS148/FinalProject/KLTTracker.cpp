@@ -27,12 +27,12 @@ void KLTTracker::initialize(const GrayscaleImage& frame, const PointArray& keypo
             int maxCorners = max_points_;
             double qualityLevel = 0.01;
             double minDistance = 10;
-            int blockSize = win_size_;
+            int blockSize = 9;
             bool useHarrisDetector = false;
             double k = 0.04;
 
             // Use OpenCV's goodFeaturesToTrack function.
-            cv::goodFeaturesToTrack(frame, preKeypoints_, maxCorners,
+            goodFeaturesToTrack(frame, preKeypoints_, maxCorners,
                                     qualityLevel, minDistance, cv::Mat(),
                                     blockSize, useHarrisDetector, k);
         }
@@ -42,7 +42,7 @@ void KLTTracker::initialize(const GrayscaleImage& frame, const PointArray& keypo
         }
         
         // Optional: use cornerSubPix to refine your corners.
-        cv::cornerSubpix(frame, preKeypoints_, Size(block_size, block_size),
+        cornerSubPix(frame, preKeypoints_, win_size_,
                         Size(-1, -1), term_crit_);
     }
     else
@@ -69,7 +69,7 @@ void KLTTracker::track(const GrayscaleImage& frame, MatchHandler& match_handler)
     calcOpticalFlowPyrLK(preFrame_, frame,
                          preKeypoints_, keypoints_,
                          status, errors,
-                         Size(win_size_, win_size_), 3,
+                         win_size_, 3,
                          term_crit_, 0);
     // Step 2 : Prune points based on the status returned by calcOpticalFlowPyrLK.
     for(size_t i=0; i<status.size(); i++) {

@@ -1,5 +1,7 @@
 #include "Common.hpp"
 
+using namespace cv;
+
 class KLTTracker
 {
     
@@ -19,11 +21,11 @@ private:
     
     cv::Size win_size_;
 
-    PointArray& keypoints_;
+    PointArray keypoints_;
 
-    PointArray& preKeypoints_;
+    PointArray preKeypoints_;
 
-    GrayscaleImage& preFrame_;
+    GrayscaleImage preFrame_;
     
     cv::TermCriteria term_crit_;
     

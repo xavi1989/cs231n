@@ -32,7 +32,7 @@ bool PlaneTracker::estimate_homography(const PointArray& src_points, const Point
     float ratio = 0;
     float inlierThreshold = 0.75;
 
-    H = findHomography(src_points, dst_points, cv::CV_RANSAC, ransacReprojThreashold, inliersMask);
+    H = findHomography(src_points, dst_points, CV_RANSAC, ransacReprojThreashold, inliersMask);
 
     for(size_t i=0; i<inliersMask.size(); i++) {
         if(inliersMask[i])
