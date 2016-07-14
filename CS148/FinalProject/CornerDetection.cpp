@@ -47,7 +47,7 @@ void DetectGoodFeaturesToTrack(const GrayscaleImage& image,
         }
     }
     
-    std::sort(tmpCorners, greaterThanPtr<float>());
+    //sort(tmpCorners, greaterThanPtr<float>());
     std::vector<Point2f> corners;
     size_t i, j, total = tmpCorners.size(), ncorners = 0;
     
