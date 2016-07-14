@@ -113,6 +113,7 @@ void draw_cube() {
   for (int i = 0; i < 6; i++) {
     glBegin(GL_QUADS);
     glNormal3fv(&n[i][0]);
+    glColor3f(0, 1.0, 0);
     glVertex3fv(&v[faces[i][0]][0]);
     glVertex3fv(&v[faces[i][1]][0]);
     glVertex3fv(&v[faces[i][2]][0]);
@@ -123,6 +124,7 @@ void draw_cube() {
 
 void problem4() {
     // TODO: Your code here!
+    glDisable(GL_LIGHTING);
     // Draw N
     glPushMatrix();
     glTranslatef(-0.5, 0, 0);
