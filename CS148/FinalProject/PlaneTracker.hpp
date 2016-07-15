@@ -18,6 +18,8 @@ public:
 private:        
     
     KLTTracker klt_tracker_;
+
+    Homography current_H;
     
     ORBTracker orb_tracker_;
     

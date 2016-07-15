@@ -7,6 +7,15 @@ void PlaneTracker::initialize(const GrayscaleImage &frame)
 {
     klt_tracker_.initialize(frame);
     orb_tracker_.initialize(frame);
+
+    current_H(0, 0) = 1.0;
+    current_H(1, 1) = 1.0;
+    current_H(2, 2) = 1.0;
+
+#if DEBUG
+    std::cout<<"PlaneTracker initialize Matrix H: "<<std::endl;
+    std::cout<<current_H<<std::endl;
+#endif
     is_lost_ = false;
 }
 
@@ -43,6 +52,15 @@ bool PlaneTracker::estimate_homography(const PointArray& src_points, const Point
 
     if(ratio < inlierThreshold)
         return false;
+
+    current_H = current_H * H;
+
+#if DEBUG
+    std::cout<<"estimate_homography H "<<std::endl;
+    std::cout<<H<<std::endl;
+    std::cout<<"estimate_homography final H "<<std::endl;
+    std::cout<<current_H<<std::endl;
+#endif
 
     return true;
 }

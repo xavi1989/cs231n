@@ -7,6 +7,8 @@
 #include <memory>
 #include <vector>
 
+#define DEBUG 0
+
 typedef cv::Matx33f Homography;
 
 typedef cv::Mat ColorImage;

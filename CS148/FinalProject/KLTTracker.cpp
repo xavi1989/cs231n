@@ -51,7 +51,7 @@ void KLTTracker::initialize(const GrayscaleImage& frame, const PointArray& keypo
         preKeypoints_ = keypoints;
     }
 
-    preFrame_ = frame;
+    preFrame_ = frame.clone();
 }
 
 // Track the points in the provided grayscale frame. If you find sufficiently many
@@ -62,7 +62,7 @@ void KLTTracker::track(const GrayscaleImage& frame, MatchHandler& match_handler)
     // Step 1 : Compute optical flow.
     // Hint   : calcOpticalFlowPyrLK
     std::vector<uchar> status;
-    std::vector<uchar> errors;
+    std::vector<float> errors;
     std::vector<cv::Point2f> srcPoints;
     std::vector<cv::Point2f> dstPoints;
 
@@ -73,7 +73,7 @@ void KLTTracker::track(const GrayscaleImage& frame, MatchHandler& match_handler)
                          term_crit_, 0);
     // Step 2 : Prune points based on the status returned by calcOpticalFlowPyrLK.
     for(size_t i=0; i<status.size(); i++) {
-        if(status[i] && !errors[i]) {
+        if(status[i]) {
             srcPoints.push_back(preKeypoints_[i]);
             dstPoints.push_back(keypoints_[i]);
         }
@@ -83,7 +83,7 @@ void KLTTracker::track(const GrayscaleImage& frame, MatchHandler& match_handler)
     match_handler(srcPoints, dstPoints);
 
     // Step 4 : Update your internal variables.
-    preFrame_ = frame;
+    preFrame_ = frame.clone();
     preKeypoints_ = keypoints_;
 }
 

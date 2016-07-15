@@ -20,7 +20,8 @@ void PM::initialize(ColorImage &frame)
     pts.push_back(cv::Point2f(frame_size.width - 2*inset, frame_size.height - 2*inset));
     pts.push_back(cv::Point2f(inset, frame_size.height - 2*inset));
     augmentor_.initialize(pts);
-    //augmentor_.set_title(art_info.title);
+    std::string title("MonaLisa");
+    augmentor_.set_title(title);
 
     has_been_initialized_ = true;
 }
@@ -40,6 +41,6 @@ void PM::process_frame(ColorImage& frame)
 
 void PM::convert_to_grayscale(const ColorImage& colorImage, GrayscaleImage& grayscaleImage)
 {
-    assert(colorImage.type()==CV_8UC4 && "Frame type must be BGRA!");
+    //assert(colorImage.type()==CV_8UC4 && "Frame type must be BGRA!");
     cv::cvtColor(colorImage, grayscaleImage, CV_BGRA2GRAY);
 }

@@ -29,7 +29,20 @@ void Augmentor::set_title(const std::string& title)
 // Make sure you update the current_bounds_ variable!
 void Augmentor::render_bounds(ColorImage& frame, const Homography& H)
 {
+    cv::Scalar color(255, 255, 255);
+    PointArray new_bounds;
+
+    cv::perspectiveTransform(current_bounds_, new_bounds, H);
+
+    for(int i=0; i<current_bounds_.size()-1; i++) {
+        cv::line(frame, new_bounds[i], new_bounds[i+1], color);
+    }
+    cv::line(frame, new_bounds[0], new_bounds[1], color);
+    cv::line(frame, new_bounds[1], new_bounds[2], color);
+    cv::line(frame, new_bounds[2], new_bounds[3], color);
+    cv::line(frame, new_bounds[3], new_bounds[0], color);
     
+    current_bounds_ = new_bounds;
 }
 
 void Augmentor::render_title(ColorImage& frame)
@@ -42,6 +55,9 @@ void Augmentor::render_title(ColorImage& frame)
     
 void Augmentor::augment(ColorImage &frame, const Homography& H, bool lost)
 {
+#if DEBUG
+    std::cout<<"augment lost "<<lost<<std::endl;
+#endif
     if(!lost)
     {
         render_bounds(frame, H);
