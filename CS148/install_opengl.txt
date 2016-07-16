@@ -1,0 +1,37 @@
+Install OpenGL
+
+sudo apt-get install linux-image-3.13.0-X-generic linux-headers-3.13.0-X-generic
+sudo apt-get install -y ia32-libs  #[this one not required on Ubuntu 14.04 or later]
+sudo apt-get install -y gcc-multilib
+sudo apt-get install -y lib32z1
+sudo apt-get install libncurses5:i386
+sudo apt-get install libstdc++6:i386
+sudo apt-get install libstdc++6-4.6-dev:i386
+
+OpenGL dependency
+sudo apt-get install  libglew-dev libcheese7 libcheese-gtk23 libclutter-gst-2.0-0 libcogl15 libclutter-gtk-1.0-0 libclutter-1.0-0  xserver-xorg-input-all
+
+Type/Copy/Paste: sudo apt-get update
+Type/Copy/Paste: sudo apt-get install freeglut3
+Type/Copy/Paste: sudo apt-get install freeglut3-dev
+Type/Copy/Paste: sudo apt-get install binutils-gold
+Type/Copy/Paste: sudo apt-get install g++ cmake
+Type/Copy/Paste: sudo apt-get install libglew-dev
+Type/Copy/Paste: sudo apt-get install g++
+Type/Copy/Paste: sudo apt-get install mesa-common-dev
+Type/Copy/Paste: sudo apt-get install build-essential
+Type/Copy/Paste: sudo apt-get install libglew1.5-dev libglm-dev
+
+sudo apt-get install libxmu-dev libxi-dev
+sudo apt-get install libxinerama-dev
+sudo apt-get install libxcursor-dev
+
+GLFW
+git clone https://github.com/glfw/glfw.git
+
+Install OpenCV
+http://milq.github.io/install-opencv-ubuntu-debian/
+bash install-opencv.sh
+mkdir build && cd build && cmake .. && make
+
+sudo apt-get install libglew-dev libglfw3-dev libglm-dev
