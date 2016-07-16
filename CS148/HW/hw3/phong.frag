@@ -16,6 +16,10 @@ void main()
     // TODO: Replace with your code...
     // If gl_Position was set correctly, this gives a totally red cube
 
+    // Ambient
+    float ambientStrength = 0.1f;
+    vec3 ambient = ambientStrength * lightColor;
+
     // Diffuse 
     vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(lightPos - FragPos);
@@ -28,7 +32,7 @@ void main()
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     vec3 specular = spec * lightColor;
 
-    vec3 result = (diffuse + specular) * objectColor;
+    vec3 result = (ambient + diffuse + specular) * objectColor;
 
     color = vec4(result, 1.0f);
 } 
