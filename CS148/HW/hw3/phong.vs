@@ -15,7 +15,4 @@ void main()
 {
     // TODO: Your code here
     // Remember to set gl_Position (correctly) or you will get a black screen...
-    Normal = mat3(transpose(inverse(model))) * normal;
-    gl_Position = projection * view * model * vec4(position, 1);
-    FragPos = vec3(model * vec4(position, 1.0f));
 } 
