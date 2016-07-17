@@ -12,7 +12,7 @@ list(APPEND CMAKE_CXX_FLAGS "-std=c++11")
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
-set(LIBS ${OpenCV_LIBS})
+set(LIBS ${OpenCV_LIBS} GLEW glfw)
 
 file(GLOB SOURCE
     "*.cpp"
