@@ -14,12 +14,12 @@ public:
     void augment(ColorImage& frame, const Homography& H, bool lost);
     
     void set_title(const std::string& title);
-    
-private:
-    
+
     PointArray reference_bounds_;
     
     PointArray current_bounds_;
+
+private:
     
     int font_face_;
     

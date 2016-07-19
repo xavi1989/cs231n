@@ -357,7 +357,10 @@ CMakeFiles/CS148_final.dir/main.cpp.o
  /home/wxia/wei_project/cs231n/CS148/FinalProject/ORBTracker.hpp
  /home/wxia/wei_project/cs231n/CS148/FinalProject/PM.hpp
  /home/wxia/wei_project/cs231n/CS148/FinalProject/PlaneTracker.hpp
+ /home/wxia/wei_project/cs231n/CS148/FinalProject/camera.h
  /home/wxia/wei_project/cs231n/CS148/FinalProject/main.cpp
+ /home/wxia/wei_project/cs231n/CS148/FinalProject/shader.h
+ /usr/local/include/GLFW/glfw3.h
  /usr/local/include/opencv/cxcore.h
  /usr/local/include/opencv2/calib3d.hpp
  /usr/local/include/opencv2/calib3d/calib3d_c.h

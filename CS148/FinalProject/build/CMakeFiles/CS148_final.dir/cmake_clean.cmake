@@ -1,11 +1,11 @@
 FILE(REMOVE_RECURSE
   "CMakeFiles/CS148_final.dir/PM.cpp.o"
   "CMakeFiles/CS148_final.dir/PlaneTracker.cpp.o"
-  "CMakeFiles/CS148_final.dir/Augmentor.cpp.o"
-  "CMakeFiles/CS148_final.dir/KLTTracker.cpp.o"
-  "CMakeFiles/CS148_final.dir/ORBTracker.cpp.o"
-  "CMakeFiles/CS148_final.dir/CornerDetection.cpp.o"
   "CMakeFiles/CS148_final.dir/main.cpp.o"
+  "CMakeFiles/CS148_final.dir/Augmentor.cpp.o"
+  "CMakeFiles/CS148_final.dir/CornerDetection.cpp.o"
+  "CMakeFiles/CS148_final.dir/ORBTracker.cpp.o"
+  "CMakeFiles/CS148_final.dir/KLTTracker.cpp.o"
   "CS148_final.pdb"
   "CS148_final"
 )

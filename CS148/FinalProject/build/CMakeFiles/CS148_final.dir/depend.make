@@ -356,7 +356,10 @@ CMakeFiles/CS148_final.dir/main.cpp.o: ../KLTTracker.hpp
 CMakeFiles/CS148_final.dir/main.cpp.o: ../ORBTracker.hpp
 CMakeFiles/CS148_final.dir/main.cpp.o: ../PM.hpp
 CMakeFiles/CS148_final.dir/main.cpp.o: ../PlaneTracker.hpp
+CMakeFiles/CS148_final.dir/main.cpp.o: ../camera.h
 CMakeFiles/CS148_final.dir/main.cpp.o: ../main.cpp
+CMakeFiles/CS148_final.dir/main.cpp.o: ../shader.h
+CMakeFiles/CS148_final.dir/main.cpp.o: /usr/local/include/GLFW/glfw3.h
 CMakeFiles/CS148_final.dir/main.cpp.o: /usr/local/include/opencv/cxcore.h
 CMakeFiles/CS148_final.dir/main.cpp.o: /usr/local/include/opencv2/calib3d.hpp
 CMakeFiles/CS148_final.dir/main.cpp.o: /usr/local/include/opencv2/calib3d/calib3d_c.h

@@ -202,6 +202,7 @@ int main()
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
 
+#if 0
         // Also draw the lamp object, again binding the appropriate shader
         lampShader.Use();
         // Get location objects for the matrices on the lamp shader (these could be different on a different shader)
@@ -219,6 +220,7 @@ int main()
         glBindVertexArray(lightVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
+#endif
 
         // Swap the screen buffers
         glfwSwapBuffers(window);

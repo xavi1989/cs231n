@@ -14,12 +14,11 @@ public:
     void initialize(const GrayscaleImage& frame);
     
     bool track(const GrayscaleImage& frame, Homography& H);
-    
+
+    Homography current_H;
 private:        
     
     KLTTracker klt_tracker_;
-
-    Homography current_H;
     
     ORBTracker orb_tracker_;
     

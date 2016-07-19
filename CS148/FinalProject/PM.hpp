@@ -16,7 +16,14 @@ public:
     // Note that this function mutates the input frame with the augmentations.
     // Expected input: An 8UC3 RGB image.
     void process_frame(ColorImage& frame);
-    
+    Homography& getCurrentHomography() {
+        return this->tracker_.current_H;
+    }
+
+    PointArray& getCurrentBound() {
+        return this->augmentor_.current_bounds_;
+    }
+
 private:
     
     bool has_been_initialized_;
