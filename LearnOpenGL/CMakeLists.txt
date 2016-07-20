@@ -156,4 +156,37 @@ foreach(CHAPTER ${CHAPTERS})
     endforeach(DEMO)
 endforeach(CHAPTER)
 
+include_directories(${CMAKE_SOURCE_DIR}/rain_effect)
+
+find_package(OpenCV REQUIRED)
+include_directories(${OpenCV_INCLUDE_DIRS})
+
+file(GLOB SOURCE
+    "src/rain_effect/*.cpp"
+)
+add_executable(rain_effect ${SOURCE})
+target_link_libraries(rain_effect ${LIBS} ${OpenCV_LIBS})
+set_target_properties(rain_effect PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin/rain_effect")
+
+# copy shader files to build directory
+file(GLOB SOURCES
+    "src/rain_effect/*.vs"
+    "src/rain_effect/*.frag"
+    "src/rain_effect/*.gs"
+)
+
+foreach(SOURCE ${SOURCES})
+  file(COPY ${SOURCE} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/bin/rain_effect)			
+endforeach(SOURCE)
+
+# copy img files to build directory
+file(GLOB SOURCES
+    "src/rain_effect/img/*.jpg"
+    "src/rain_effect/img/*.png"
+)
+
+foreach(SOURCE ${SOURCES})
+  file(COPY ${SOURCE} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/bin/rain_effect/img)			
+endforeach(SOURCE)
+
 include_directories(${CMAKE_SOURCE_DIR}/includes)
