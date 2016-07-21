@@ -15,6 +15,7 @@ void main()
 {
     // TODO: Replace with your code...
     // If gl_Position was set correctly, this gives a totally red cube
+    // refer to LearnOpenGl example "basic lighting"
 
     // Ambient
     float ambientStrength = 0.1f;
@@ -29,7 +30,7 @@ void main()
     // Specular
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);  
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128);
     vec3 specular = spec * lightColor;
 
     vec3 result = (ambient + diffuse + specular) * objectColor;
