@@ -1,1 +1,0 @@
-/home/wxia/wei_project/cs231n/CS148/FinalProject/build/CMakeFiles/CS148_final.dir
