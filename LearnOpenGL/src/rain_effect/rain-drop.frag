@@ -5,32 +5,36 @@ in vec2 TexCoord;
 out vec4 color;
 
 // Texture samplers
-uniform sampler2D background;
+uniform sampler2D fgTexture;
+uniform sampler2D bgTexture;
 uniform sampler2D alphaTexture;
 uniform sampler2D colorTexture;
 uniform sampler2D shineTexture;
 
-// alpha-blends two colors
-vec4 blend(vec4 bg,vec4 fg){
-  vec3 bgm=bg.rgb*bg.a;
-  vec3 fgm=fg.rgb*fg.a;
-  float ia=1.0-fg.a;
-  float a=(fg.a + bg.a * ia);
-  vec3 rgb;
-  if(a!=0.0){
-    rgb=(fgm + bgm * ia) / a;
-  }else{
-    rgb=vec3(0.0,0.0,0.0);
-  }
-  return vec4(rgb,a);
+//alpha-blendings two colors
+vec4 blend(vec4 fgColor, vec4 bgColor) {
+    float alpha = fgColor.a;
+    vec4 color = fgColor * alpha + bgColor*(1 - alpha);
+    color.a = alpha + (1 - alpha) * bgColor.a;
+    return color;
 }
+
 
 void main()
 {
-  vec4 tmp_alpha = texture(alphaTexture, TexCoord);
-  vec4 tmp_background = texture(background, TexCoord);
-  vec4 tmp_color = texture(colorTexture, TexCoord);
+  // Get the alpha value
+  float alpha = texture(alphaTexture, TexCoord);
 
-  tmp_color.a = tmp_alpha.a;
-  color = tmp_color;
+  // Get Coord in the background
+  vec2 bgCoord = vec2(gl_FragCoord.x, 600.0 - gl_FragCoord.y)/800.0;
+
+  // Get the bgTexture
+  vec4 bgColor = texture(bgTexture, bgCoord);
+
+  // Get the fgTexture
+  vec4 fgColor = texture(fgTexture, vec2(TexCoord.x, 1 - TexCoord.y));
+
+  fgColor.a = alpha;
+
+  color = blend(fgColor, bgColor);
 }
