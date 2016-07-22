@@ -114,6 +114,7 @@ int main()
 
     // Setup some OpenGL options
     glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     drawBackground_init();
     // Setup and compile our shaders
@@ -130,12 +131,13 @@ int main()
     Shader dropShader("rain-drop.vs", "rain-drop.frag");
 
     // Load textures
+    GLuint fgTexture = loadTexture("img/texture-rain-fg.png");
     GLuint colorTexture = loadTexture("img/drop-color.png");
     GLuint alphaTexture = loadTexture("img/drop-alpha.png");
     GLuint shineTexture = loadTexture("img/drop-shine.png");
 
     Drop my_drop(100, 100, 100, SCR_WIDTH, SCR_HEIGHT, dropShader.Program);
-    my_drop.setTexture(alphaTexture, colorTexture, shineTexture, backgroundTexture);
+    my_drop.setTexture(alphaTexture, colorTexture, shineTexture, fgTexture, backgroundTexture);
     my_drop.draw_init();
 
     // Game loop

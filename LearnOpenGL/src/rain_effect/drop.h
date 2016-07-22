@@ -36,24 +36,29 @@ private:
     GLuint alphaMap;
     GLuint colorMap;
     GLuint shineMap;
-    GLuint bgMap;
+    GLuint fgMap;
+    GLUint bgMap;
     
 
 public:
     Drop(int x, int y, int r, int width, int height, GLuint Program);
     Drop(int width, int height, GLuint Program);
-    void setTexture(GLuint x, GLuint y, GLuint z, GLuint w) {
+    void setTexture(GLuint x, GLuint y, GLuint z, GLuint w1, GLuint w2) {
         alphaMap = x;
         colorMap = y;
         shineMap = z;
-        bgMap = w;
+        fgMap = w1;
+        bgMap = w2;
+        
 
+         int i=0;
         // Bind Textures using texture units
         glUseProgram(this->Program);
-        glUniform1i(glGetUniformLocation(this->Program, "background"), 0); 
-        glUniform1i(glGetUniformLocation(this->Program, "alphaTexture"), 1);
-        glUniform1i(glGetUniformLocation(this->Program, "colorTexture"), 2);
-        glUniform1i(glGetUniformLocation(this->Program, "shineTexture"), 3);
+        glUniform1i(glGetUniformLocation(this->Program, "fgTexture"), i++);
+        glUniform1i(glGetUniformLocation(this->Program, "bgTexture"), i++); 
+        glUniform1i(glGetUniformLocation(this->Program, "alphaTexture"), i++);
+        glUniform1i(glGetUniformLocation(this->Program, "colorTexture"), i++);
+        glUniform1i(glGetUniformLocation(this->Program, "shineTexture"), i++);
     }
 
     void draw_init();
@@ -133,14 +138,26 @@ void Drop::draw() {
     glUseProgram(this->Program);
     glUniformMatrix4fv(glGetUniformLocation(this->Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
-    glActiveTexture(GL_TEXTURE0);
+    int i=0;
+    glActiveTexture(GL_TEXTURE0 + i);
+    i++;
+    glBindTexture(GL_TEXTURE_2D, fgMap);
+
+    glActiveTexture(GL_TEXTURE0 + i);
+    i++;
     glBindTexture(GL_TEXTURE_2D, bgMap);
-    glActiveTexture(GL_TEXTURE1);
+
+    glActiveTexture(GL_TEXTURE0 + i);
+    i++;
     glBindTexture(GL_TEXTURE_2D, alphaMap);
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, colorMap);
-	  glActiveTexture(GL_TEXTURE3);
-	  glBindTexture(GL_TEXTURE_2D, shineMap);
+
+    glActiveTexture(GL_TEXTURE0 + i);
+    i++;
+	glBindTexture(GL_TEXTURE_2D, colorMap);
+
+    glActiveTexture(GL_TEXTURE0 + i);
+    i++;
+	glBindTexture(GL_TEXTURE_2D, shineMap);
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
