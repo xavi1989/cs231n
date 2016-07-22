@@ -37,7 +37,7 @@ private:
     GLuint colorMap;
     GLuint shineMap;
     GLuint fgMap;
-    GLUint bgMap;
+    GLuint bgMap;
     
 
 public:
@@ -74,7 +74,7 @@ Drop::Drop(int x, int y, int r, int width, int height, GLuint Program) {
     this->height = height;
     this->Program = Program;
     this->spreadX = 1;
-    this->spreadY = 1;
+    this->spreadY = 1.5;
 }
 
 Drop::Drop(int width, int height, GLuint Program) {
@@ -87,7 +87,7 @@ Drop::Drop(int width, int height, GLuint Program) {
 
     this->r = rand() % R_DELTA + R_MIN;
     this->spreadX = 1;
-    this->spreadY = 1;
+    this->spreadY = 1.5;
 }
 
 void Drop::draw_init() {

@@ -136,7 +136,7 @@ int main()
     GLuint alphaTexture = loadTexture("img/drop-alpha.png");
     GLuint shineTexture = loadTexture("img/drop-shine.png");
 
-    Drop my_drop(100, 100, 100, SCR_WIDTH, SCR_HEIGHT, dropShader.Program);
+    Drop my_drop(100, 100, 200, SCR_WIDTH, SCR_HEIGHT, dropShader.Program);
     my_drop.setTexture(alphaTexture, colorTexture, shineTexture, fgTexture, backgroundTexture);
     my_drop.draw_init();
 
@@ -199,6 +199,8 @@ GLuint loadTexture(GLchar const * path)
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
     else if(channel == 4) {
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+    } else {
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
     }
     glGenerateMipmap(GL_TEXTURE_2D);
 
