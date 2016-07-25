@@ -2,6 +2,7 @@
 #define SHAPE_H
 
 #include <Eigen/Dense>
+#include <Materials.h>
 
 namespace Raytracer148 {
 struct Ray {
@@ -13,6 +14,7 @@ class Shape;
 struct HitRecord {
   Eigen::Vector3d position, normal;
   double t;
+  Materials m;
 };
 
 class Shape {

@@ -34,7 +34,32 @@ Vector3d Scene::trace(const Ray &ray) {
     double dot = lightDir.dot(r.normal);
     if (dot < 0) dot = 0;
 
-    result[0] = result[1] = result[2] = dot;
+    // check for shadow
+    for(int i=0; i<shapes.size(); i++) {
+        Ray tmp;
+        tmp.origin = lightPos;
+        tmp.direction = lightDir;
+
+        HitRecord tmp_r = shapes[i]->intersect(tmp);
+
+        if (tmp_r.t > std::numeric_limits<double>::epsilon()) {
+            // find one shape blocking the light source.
+            return result;
+        }
+    }
+
+    // diffuse
+    float diffuse = dot ? r.m.kd : 0;
+
+    // specular
+    Vector3d h = -(ray.direction - lightDir).normalized();
+    float specular = r.m.ks * std::pow(max(0.0, h.dot(r.normal)), r.m.p);
+
+    result =(r.m.ka + diffuse + specular)*r.m.surfaceColor; 
+
+    printf("%f %f %f\n", diffuse, specular, h.dot(r.normal));
+    printf("%f %f %f \n", result[0], result[1], result[2]);
+
     return result;
 }
 
