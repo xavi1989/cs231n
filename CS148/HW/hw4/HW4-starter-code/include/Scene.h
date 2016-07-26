@@ -22,7 +22,7 @@ public:
 
   void addShape(Shape *s) { shapes.push_back(s); }
   HitRecord closestHit(const Ray &ray);
-  Eigen::Vector3d trace(const Ray &ray);
+  Eigen::Vector3d trace(const Ray &ray, const int &depth);
   void render(Image &image);
 
 private:
