@@ -2,7 +2,7 @@
 #include <cmath>
 #include <cstdlib>
 
-#include <vdb.h>
+
 using namespace Raytracer148;
 using namespace std;
 using namespace Eigen;
@@ -10,6 +10,10 @@ using namespace Eigen;
 #define MAX_RAY_DEPTH 5
 #define DEBUG 0
 #define VDB 0
+
+#if VDB
+#include <vdb.h>
+#endif
 
 HitRecord Scene::closestHit(const Ray &ray) {
     HitRecord result;
