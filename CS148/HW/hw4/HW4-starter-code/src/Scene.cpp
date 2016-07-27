@@ -68,8 +68,11 @@ Vector3d Scene::trace(const Ray &ray, const int &depth) {
 
     float bias = 1e-4;
     bool inside = false;
+
+    // make sure normal and ray direction are on the same side
     if((ray.direction).dot(r.normal) > 0) {
-        
+        inside = true;
+        r.normal = -r.normal;
     }
 
 #if DEBUG
@@ -82,7 +85,8 @@ Vector3d Scene::trace(const Ray &ray, const int &depth) {
         float costheta = (-ray.direction).dot(r.normal);
         float F0 = 0.1;
         float fresneleffect = F0 + (1 - F0) * pow(1 - costheta, 5);
-        Vector3d reflectDir = (ray.direction - r.normal * 2 * ((ray.direction).dot(r.normal))).normalized();
+
+        Vector3d reflectDir = (ray.direction + r.normal * 2 * costheta).normalized();
 
         Ray reflectRay;
         reflectRay.origin = r.position + r.normal * bias;
@@ -104,6 +108,21 @@ Vector3d Scene::trace(const Ray &ray, const int &depth) {
         // refraction
         Vector3d refractionColor;
         refractionColor[0] = refractionColor[1] = refractionColor[2] = 0;
+
+        if (r.m.transparency) {
+            float ior = 1.1;
+            float eta = (inside) ? ior : 1 / ior; // are we inside or outside the surface?
+            float cosi = -(r.normal).dot(ray.direction);
+            float k = 1 - eta * eta * (1 - cosi * cosi);
+            Vector3d refractDir = (ray.direction) * eta + (r.normal) * (eta *  cosi - sqrt(k));
+            refractDir.normalized();
+
+            Ray refractRay;
+            refractRay.origin = r.position - r.normal * bias;
+            refractRay.direction = refractDir;
+
+            refractionColor = trace(refractRay, depth + 1);
+        }
 
         Vector3d combinedColor = (
             reflectColor * fresneleffect +
@@ -130,14 +149,14 @@ Vector3d Scene::trace(const Ray &ray, const int &depth) {
         bool iblock = CheckBlock(lightPos, mordifiedHitPos);
         if(iblock) {
             dot = 0;
-        }
+        }     
 
         // diffuse
         float diffuse = dot ? r.m.kd : 0;
 
-        result[0] = dot ? (r.m.ka + diffuse) * r.m.surfaceColor[0] : 0;
-        result[1] = dot ? (r.m.ka + diffuse) * r.m.surfaceColor[1] : 0;
-        result[2] = dot ? (r.m.ka + diffuse) * r.m.surfaceColor[2] : 0;
+        result[0] = (r.m.ka + diffuse) * r.m.surfaceColor[0];
+        result[1] = (r.m.ka + diffuse) * r.m.surfaceColor[1];
+        result[2] = (r.m.ka + diffuse) * r.m.surfaceColor[2];
 #if 0
         printf("diffuse %f  color %f %f %f\n", diffuse, result[0], result[1], result[2]);
 #endif
