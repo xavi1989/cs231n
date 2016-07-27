@@ -24,6 +24,7 @@ public:
   HitRecord closestHit(const Ray &ray);
   Eigen::Vector3d trace(const Ray &ray, const int &depth);
   void render(Image &image);
+  bool CheckBlock(Eigen::Vector3d &lightPos, Eigen::Vector3d &hitPos);
 
 private:
   std::vector<Shape*> shapes;

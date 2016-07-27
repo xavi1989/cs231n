@@ -1,7 +1,7 @@
 #include "Scene.h"
 #include <cmath>
 #include <cstdlib>
-
+#include <iostream>
 
 using namespace Raytracer148;
 using namespace std;
@@ -14,6 +14,31 @@ using namespace Eigen;
 #if VDB
 #include <vdb.h>
 #endif
+
+bool Scene::CheckBlock(Eigen::Vector3d &lightPos, Eigen::Vector3d &hitPos) {
+    Ray ray;
+    ray.origin = hitPos;
+    ray.direction = (lightPos - hitPos).normalized();
+    HitRecord r;
+    Vector3d hitTolight = lightPos - hitPos;
+
+    for(int i=0; i<shapes.size(); i++) {
+
+        r = shapes[i]->intersect(ray);
+
+        if (r.t <= std::numeric_limits<double>::epsilon()) {
+            // find one shape blocking the light source.
+            return false;
+        }
+
+        Vector3d hitTohit = ray.origin + r.t * ray.direction;
+
+        if(hitTohit.norm() < hitTolight.norm())
+            return true;
+    }
+
+    return false;
+}
 
 HitRecord Scene::closestHit(const Ray &ray) {
     HitRecord result;
@@ -92,35 +117,29 @@ Vector3d Scene::trace(const Ray &ray, const int &depth) {
         result[2] = combinedColor[2] * r.m.surfaceColor[2];
 
     } else {
-        Vector3d lightDir = (lightPos - r.position).normalized();
-        double dot = lightDir.dot(r.normal);
-        if (dot < 0) dot = 0;
+        Vector3d rayToLight = (lightPos - r.position).normalized();
+        double dot = rayToLight.dot(r.normal);
+        if (dot < 0) {
+          dot = 0;
+          //printf("dot %f \n", dot);
+          //printf("r.position %f %f %f lightPos %f %f %f \n", r.position[0], r.position[1], r.position[2], lightPos[0], lightPos[1], lightPos[2]);
+          //printf("normal %f %f %f \n", r.normal[0], r.normal[1], r.normal[2]);
+        }
 
-        // check for shadow
-        for(int i=0; i<shapes.size(); i++) {
-            Ray tmp;
-            tmp.origin = lightPos;
-            tmp.direction = lightDir;
-
-            HitRecord tmp_r = shapes[i]->intersect(tmp);
-
-            if (tmp_r.t > std::numeric_limits<double>::epsilon()) {
-                // find one shape blocking the light source.
-                return result;
-            }
+        Vector3d mordifiedHitPos = r.normal * bias + r.position;
+        bool iblock = CheckBlock(lightPos, mordifiedHitPos);
+        if(iblock) {
+            dot = 0;
         }
 
         // diffuse
         float diffuse = dot ? r.m.kd : 0;
 
-        // specular
-        Vector3d h = -(ray.direction - lightDir).normalized();
-        float specular = r.m.ks * std::pow(max(0.0, h.dot(r.normal)), r.m.p);
-
-        result =(r.m.ka + diffuse + specular)*r.m.surfaceColor;
-
+        result[0] = dot ? (r.m.ka + diffuse) * r.m.surfaceColor[0] : 0;
+        result[1] = dot ? (r.m.ka + diffuse) * r.m.surfaceColor[1] : 0;
+        result[2] = dot ? (r.m.ka + diffuse) * r.m.surfaceColor[2] : 0;
 #if 0
-        printf("diffuse %f specular %f \n", diffuse, specular);
+        printf("diffuse %f  color %f %f %f\n", diffuse, result[0], result[1], result[2]);
 #endif
     }
 
