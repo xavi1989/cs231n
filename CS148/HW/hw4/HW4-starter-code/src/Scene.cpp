@@ -85,6 +85,8 @@ Vector3d Scene::trace(const Ray &ray, const int &depth) {
         float costheta = (-ray.direction).dot(r.normal);
         float F0 = 0.1;
         float fresneleffect = F0 + (1 - F0) * pow(1 - costheta, 5);
+        if(r.m.transparency == 0)
+            fresneleffect = 0;
 
         Vector3d reflectDir = (ray.direction + r.normal * 2 * costheta).normalized();
 
@@ -114,14 +116,17 @@ Vector3d Scene::trace(const Ray &ray, const int &depth) {
             float eta = (inside) ? ior : 1 / ior; // are we inside or outside the surface?
             float cosi = -(r.normal).dot(ray.direction);
             float k = 1 - eta * eta * (1 - cosi * cosi);
-            Vector3d refractDir = (ray.direction) * eta + (r.normal) * (eta *  cosi - sqrt(k));
-            refractDir.normalized();
 
-            Ray refractRay;
-            refractRay.origin = r.position - r.normal * bias;
-            refractRay.direction = refractDir;
+            if(k >= 0) {
+                Vector3d refractDir = (ray.direction) * eta - eta * (r.normal) * cosi + (r.normal) * (eta *  cosi - sqrt(k));
+                refractDir.normalized();
 
-            refractionColor = trace(refractRay, depth + 1);
+                Ray refractRay;
+                refractRay.origin = r.position - r.normal * bias;
+                refractRay.direction = refractDir;
+
+                refractionColor = trace(refractRay, depth + 1);
+            }
         }
 
         Vector3d combinedColor = (
