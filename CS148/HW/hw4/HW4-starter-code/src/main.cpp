@@ -24,7 +24,7 @@ int main() {
     center[2] = 4;
 #if PROBLEM4
     m.reflection = 1.0;
-    m.transparency = 0.5;
+    m.transparency = 0;
     m.surfaceColor = Eigen::Vector3d(0.99, 0.99, 0.99);
 #else
     m.surfaceColor = Eigen::Vector3d(1.0, 0, 0);

@@ -86,7 +86,7 @@ Vector3d Scene::trace(const Ray &ray, const int &depth) {
         float F0 = 0.1;
         float fresneleffect = F0 + (1 - F0) * pow(1 - costheta, 5);
         if(r.m.transparency == 0)
-            fresneleffect = 0;
+            fresneleffect = 1;
 
         Vector3d reflectDir = (ray.direction + r.normal * 2 * costheta).normalized();
 
