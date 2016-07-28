@@ -73,6 +73,9 @@ Vector3d Scene::trace(const Ray &ray, const int &depth) {
     if((ray.direction).dot(r.normal) > 0) {
         inside = true;
         r.normal = -r.normal;
+#if 0
+        printf("hit point inside \n");
+#endif
     }
 
 #if DEBUG
@@ -81,12 +84,15 @@ Vector3d Scene::trace(const Ray &ray, const int &depth) {
 #endif
 
     if((r.m.transparency > 0 || r.m.reflection > 0) && depth < MAX_RAY_DEPTH) {
+        float refractN = 2.5;
         // handle transparency and reflection
         float costheta = (-ray.direction).dot(r.normal);
-        float F0 = 0.1;
+        float fresneleffect = 1;
+#if 0
+        float F0 = (refractN - 1) / (refractN + 1);
+        F0 = F0 * F0;
         float fresneleffect = F0 + (1 - F0) * pow(1 - costheta, 5);
-        if(r.m.transparency == 0)
-            fresneleffect = 1;
+#endif
 
         Vector3d reflectDir = (ray.direction + r.normal * 2 * costheta).normalized();
 
@@ -95,7 +101,7 @@ Vector3d Scene::trace(const Ray &ray, const int &depth) {
         reflectRay.direction = reflectDir;
         Vector3d reflectColor = trace(reflectRay, depth + 1);
 
-#if VDB
+#if 0
         vdb_line(reflectRay.origin[0], reflectRay.origin[1], reflectRay.origin[2], 
                  reflectRay.origin[0] + reflectRay.direction[0], reflectRay.origin[1] + reflectRay.direction[1], reflectRay.origin[2] + reflectRay.direction[2]);
 
@@ -112,30 +118,53 @@ Vector3d Scene::trace(const Ray &ray, const int &depth) {
         refractionColor[0] = refractionColor[1] = refractionColor[2] = 0;
 
         if (r.m.transparency) {
-            float ior = 1.1;
+            Ray refractRay;
+            float ior = refractN;
             float eta = (inside) ? ior : 1 / ior; // are we inside or outside the surface?
             float cosi = -(r.normal).dot(ray.direction);
             float k = 1 - eta * eta * (1 - cosi * cosi);
 
             if(k >= 0) {
+                float cost = sqrt(k);
+
+                float Rs = pow((eta * cosi - cost) / (eta * cosi + cost), 2);
+                float Rp = pow((eta * cost - cosi) / (eta * cost + cosi), 2);
+                fresneleffect = (Rs + Rp) / 2;
+
                 Vector3d refractDir = (ray.direction) * eta - eta * (r.normal) * cosi + (r.normal) * (eta *  cosi - sqrt(k));
                 refractDir.normalized();
 
-                Ray refractRay;
                 refractRay.origin = r.position - r.normal * bias;
                 refractRay.direction = refractDir;
 
+#if VDB
+                vdb_line(ray.origin[0], ray.origin[1], ray.origin[2], 
+                         reflectRay.origin[0], reflectRay.origin[1], reflectRay.origin[2]);
+
+                vdb_line(reflectRay.origin[0], reflectRay.origin[1], reflectRay.origin[2], 
+                         reflectRay.origin[0] + reflectRay.direction[0], reflectRay.origin[1] + reflectRay.direction[1], reflectRay.origin[2] + reflectRay.direction[2]);
+
+                vdb_line(refractRay.origin[0], refractRay.origin[1], refractRay.origin[2], 
+                         refractRay.origin[0] + refractRay.direction[0], refractRay.origin[1] + refractRay.direction[1], refractRay.origin[2] + refractRay.direction[2]);
+
+
+                vdb_line(reflectRay.origin[0], reflectRay.origin[1], reflectRay.origin[2],
+                         reflectRay.origin[0] + r.normal[0], reflectRay.origin[1] + r.normal[1], reflectRay.origin[2] + r.normal[2]);
+
+#endif
                 refractionColor = trace(refractRay, depth + 1);
             }
+
+        }
+
+        if(r.m.transparency) {
+            //printf("fresnel %f reflectColor %f %f %f \n", fresneleffect, refractionColor[0], refractionColor[1], refractionColor[2]);
         }
 
         Vector3d combinedColor = (
             reflectColor * fresneleffect +
             refractionColor * (1 - fresneleffect) * r.m.transparency);
 
-#if DEBUG
-        printf("fresnel %f reflectColor %f %f %f \n", fresneleffect, refractionColor[0], refractionColor[1], refractionColor[2]);
-#endif
         result[0] = combinedColor[0] * r.m.surfaceColor[0];
         result[1] = combinedColor[1] * r.m.surfaceColor[1];
         result[2] = combinedColor[2] * r.m.surfaceColor[2];
@@ -162,8 +191,15 @@ Vector3d Scene::trace(const Ray &ray, const int &depth) {
         result[0] = (r.m.ka + diffuse) * r.m.surfaceColor[0];
         result[1] = (r.m.ka + diffuse) * r.m.surfaceColor[1];
         result[2] = (r.m.ka + diffuse) * r.m.surfaceColor[2];
+
+        result[0] = result[0] > 1.0 ? 1.0 : result[0];
+        result[1] = result[1] > 1.0 ? 1.0 : result[1];
+        result[2] = result[2] > 1.0 ? 1.0 : result[2];
+
 #if 0
-        printf("diffuse %f  color %f %f %f\n", diffuse, result[0], result[1], result[2]);
+        if(r.m.surfaceColor[0] == 1.0 && r.m.surfaceColor[1] == 1.0 && r.m.surfaceColor[2] == 1.0) {
+            printf("diffuse %f  color %f %f %f\n", diffuse, result[0], result[1], result[2]);
+        }
 #endif
     }
 
@@ -181,7 +217,7 @@ void Scene::render(Image &image) {
 
     int size = image.getWidth();
     double pixelSize = 2. / size;
-    for (int x = 0; x < size; x++)
+    for (int x = 0; x < size; x++) {
         for (int y = 0; y < size; y++) {
             Vector3d color = Vector3d(0, 0, 0);
             for(int z = 0; z < N * N; z++) {
@@ -208,4 +244,6 @@ void Scene::render(Image &image) {
 
             image.setColor(x, y, color[0] / (N * N), color[1] / (N * N), color[2]/(N * N));
         }
+        printf("Current processing line %d \n", x);
+    }
 }

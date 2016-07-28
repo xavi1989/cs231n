@@ -24,8 +24,8 @@ int main() {
     center[2] = 4;
 #if PROBLEM4
     m.reflection = 1.0;
-    m.transparency = 0;
-    m.surfaceColor = Eigen::Vector3d(0.99, 0.99, 0.99);
+    m.transparency = 1.0;
+    m.surfaceColor = Eigen::Vector3d(0.9, 0.9, 0.9);
 #else
     m.surfaceColor = Eigen::Vector3d(1.0, 0, 0);
     m.reflection = 0.0;
@@ -37,9 +37,9 @@ int main() {
     center[2] = 2.5;
 
 #if PROBLEM4
-    m.reflection = 1.0;
+    m.reflection = 0.0;
     m.transparency = 0.0;
-    m.surfaceColor = Eigen::Vector3d(0.99, 0.99, 0.99);
+    m.surfaceColor = Eigen::Vector3d(0.9, 0.9, 0.9);
 #else
     m.surfaceColor = Eigen::Vector3d(0.0, 1.0, 0);
     m.reflection = 0.0;
@@ -65,11 +65,11 @@ int main() {
     Materials wallM;
     float Value = 10;
     // Top Wall
-    wallM.surfaceColor = Eigen::Vector3d(0.9f, 0.9f, 0.9f);
+    wallM.surfaceColor = Eigen::Vector3d(0.5f, 0.5f, 0.5f);
     scene.addShape(new Wall(Value/2, 0, wallM));
 
     // Bottom Wall
-    wallM.surfaceColor = Eigen::Vector3d(0.9f, 0.9f, 0.9f);
+    wallM.surfaceColor = Eigen::Vector3d(0.7f, 0.7f, 0.7f);
     scene.addShape(new Wall(-Value/2, 1, wallM));
 
     // Left Wall
