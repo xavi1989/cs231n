@@ -21,7 +21,7 @@
 #include <SOIL.h>
 #include <learnopengl/filesystem.h>
 
-#include "drop.h"
+#include "rain.h"
 
 #include <opencv2/opencv.hpp>
 
@@ -136,9 +136,14 @@ int main()
     GLuint alphaTexture = loadTexture("img/drop-alpha.png");
     GLuint shineTexture = loadTexture("img/drop-shine.png");
 
-    Drop my_drop(100, 100, 200, SCR_WIDTH, SCR_HEIGHT, dropShader.Program);
-    my_drop.setTexture(alphaTexture, colorTexture, shineTexture, fgTexture, backgroundTexture);
-    my_drop.draw_init();
+    Rain rain(SCR_WIDTH, SCR_HEIGHT, 50, dropShader.Program, alphaTexture, colorTexture, shineTexture, fgTexture, backgroundTexture);
+
+    //rain.rainDrops[0].setTexture(alphaTexture, colorTexture, shineTexture, fgTexture, backgroundTexture);
+    //rain.rainDrops[0].draw_init();
+
+    //Drop my_drop(100, 100, 200, SCR_WIDTH, SCR_HEIGHT, dropShader.Program);
+    //my_drop.setTexture(alphaTexture, colorTexture, shineTexture, fgTexture, backgroundTexture);
+    //my_drop.draw_init();
 
     // Game loop
     while (!glfwWindowShouldClose(window))
@@ -161,7 +166,9 @@ int main()
         glBindVertexArray(0);
 #endif
 
-        my_drop.draw();
+        //my_drop.draw();
+        rain.Draw();
+
 
         // Swap the buffers
         glfwSwapBuffers(window);

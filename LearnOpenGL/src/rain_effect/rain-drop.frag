@@ -57,7 +57,7 @@ void main()
   //vec4 tex = blend(fgColor, shineColor);
 
 
-  color = blend(fgColor, bgColor);
-  //color = vec4(1.0, 0, 0, 1.0);
+  //color = blend(fgColor, bgColor);
+  color = vec4(1.0, 0, 0, alpha);
   //color = shineColor;
 }

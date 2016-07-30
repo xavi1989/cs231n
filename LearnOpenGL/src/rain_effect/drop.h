@@ -4,6 +4,8 @@
 #define R_MAX    50
 #define R_DELTA (R_MAX - R_MIN)
 
+#define DEBUG 0
+
 class Drop {
 
 private:
@@ -47,14 +49,13 @@ public:
 
     Drop(int x, int y, int r, int width, int height, GLuint Program);
     Drop(int width, int height, GLuint Program);
-    ~Drop();
+    void DropCleanUp();
     void setTexture(GLuint x, GLuint y, GLuint z, GLuint w1, GLuint w2) {
         alphaMap = x;
         colorMap = y;
         shineMap = z;
         fgMap = w1;
         bgMap = w2;
-        
 
          int i=0;
         // Bind Textures using texture units
@@ -84,7 +85,7 @@ public:
     void updatePosition();
 };
 
-Drop::~Drop() {
+void Drop::DropCleanUp() {
     // Properly de-allocate all resources once they've outlived their purpose
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
@@ -111,9 +112,18 @@ Drop::Drop(int width, int height, GLuint Program) {
     this->y = rand() % height;
 
     this->r = rand() % R_DELTA + R_MIN;
+
+#if DEBUG_DROP
+    this->x = 100;
+    this->y = 100;
+    this->r = 50;
+#endif
     this->spreadX = 1;
     // 1.2 - 3
     this->spreadY = 1.2 + ((float)(rand() % 100)) / 100.0 * 1.8;
+
+    // velocity
+    this->momentum = 5;
 }
 
 void Drop::updatePosition() {
