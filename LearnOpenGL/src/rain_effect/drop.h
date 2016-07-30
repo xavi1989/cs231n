@@ -41,8 +41,13 @@ private:
     
 
 public:
+    // Collision
+    bool isKilled;
+    float shrink;
+
     Drop(int x, int y, int r, int width, int height, GLuint Program);
     Drop(int width, int height, GLuint Program);
+    ~Drop();
     void setTexture(GLuint x, GLuint y, GLuint z, GLuint w1, GLuint w2) {
         alphaMap = x;
         colorMap = y;
@@ -63,8 +68,28 @@ public:
 
     void draw_init();
     void draw();
-    
+    int getX() {
+        return this->x;
+    }
+    int getY() {
+        return this->y;
+    }
+    int getWidth() {
+        return this->width;
+    }
+    int getHeight() {
+        return this->height;
+    }
+
+    void updatePosition();
 };
+
+Drop::~Drop() {
+    // Properly de-allocate all resources once they've outlived their purpose
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
+}
 
 Drop::Drop(int x, int y, int r, int width, int height, GLuint Program) {
     this->x = x;
@@ -78,16 +103,29 @@ Drop::Drop(int x, int y, int r, int width, int height, GLuint Program) {
 }
 
 Drop::Drop(int width, int height, GLuint Program) {
-    this->Program = Program;
     this->width = width;
-    this->height = height;  
+    this->height = height;
+    this->Program = Program;
 
     this->x = rand() % width;
     this->y = rand() % height;
 
     this->r = rand() % R_DELTA + R_MIN;
     this->spreadX = 1;
-    this->spreadY = 1.5;
+    // 1.2 - 3
+    this->spreadY = 1.2 + ((float)(rand() % 100)) / 100.0 * 1.8;
+}
+
+void Drop::updatePosition() {
+    if(isKilled) {
+        return;
+    }
+
+    this->y += momentum;
+    this->x += momentumX;
+
+    if(this->y > height - r)
+        isKilled = true;
 }
 
 void Drop::draw_init() {
