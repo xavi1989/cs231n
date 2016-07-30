@@ -1,6 +1,7 @@
 #version 330 core
 in vec3 ourColor;
 in vec2 TexCoord;
+in vec2 resolution;
 
 out vec4 color;
 
@@ -20,11 +21,11 @@ vec4 blend(vec4 fgColor, vec4 bgColor) {
 }
 
 vec2 parallax(float v) {
-    return vec2(v/800.0, v/600.0*1.5);
+    return v*resolution * vec2(1, 1.5);
 }
 
 vec2 pixel() {
-    return vec2(1.0/800.0, 1.0/600.0);
+    return vec2(1.0, 1.0) / resolution;
 }
 
 void main()
@@ -34,7 +35,7 @@ void main()
   //alpha = clamp(alpha * 20 - 5, 0.0, 1.0);
 
   // Get Coord in the background
-  vec2 bgCoord = vec2(gl_FragCoord.x, 600.0 - gl_FragCoord.y)/800.0;
+  vec2 bgCoord = vec2(gl_FragCoord.x, resolution.y - gl_FragCoord.y) / resolution;
 
   // Get the bgTexture
   vec4 bgColor = texture(bgTexture, bgCoord + parallax(20.0));
@@ -58,6 +59,7 @@ void main()
 
 
   //color = blend(fgColor, bgColor);
-  color = vec4(1.0, 0, 0, alpha);
+  //color = vec4(1.0, 0, 0, alpha);
   //color = shineColor;
+  color = fgColor;
 }

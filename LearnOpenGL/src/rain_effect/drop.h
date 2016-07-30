@@ -123,7 +123,7 @@ Drop::Drop(int width, int height, GLuint Program) {
     this->spreadY = 1.2 + ((float)(rand() % 100)) / 100.0 * 1.8;
 
     // velocity
-    this->momentum = 5;
+    this->momentum = 3;
 }
 
 void Drop::updatePosition() {
@@ -175,6 +175,12 @@ void Drop::draw_init() {
     glEnableVertexAttribArray(2);
 
     glBindVertexArray(0); // Unbind VAO
+
+    // set resolution
+    GLfloat w = (GLfloat)this->width;
+    GLfloat h = (GLfloat)this->height;
+    glUniform1f(glGetUniformLocation(this->Program, "imageWidth"), w);
+    glUniform1f(glGetUniformLocation(this->Program, "imageHeight"), h);
 }
 
 void Drop::draw() {
