@@ -23,11 +23,17 @@ using namespace std;
 // Includes all libst classes
 #include "lib/libst/include/st.h"
 
+#define DEBUG 0
+
 const int g_k_window_width = 768;
 const int g_k_window_height = 512;
 
 // The default mesh
 STShape * g_shape;
+STShape * golden_shape;
+
+bool taubinFlag = false;
+bool HCFlag = false;
 
 // How many iterations of smoothing
 unsigned int g_k_num_iterations = 1;
@@ -46,9 +52,172 @@ double g_rot_angle_y = 0.0;
 // of "g_shape" which models "g_k_num_iterations" of 
 // Laplacian smoothing.
 //---------------------------------------------------------
+
+void HC_algorithm()
+{
+  float alpha = 0.1;
+  float beta = 0.6;
+  //float lamda = 0;
+  STShape *pingpong;
+  pingpong = new STShape(golden_shape);
+  STShape *bShape = new STShape(golden_shape);
+
+  int nVertices = golden_shape->GetNumVertices();
+
+  // For each vertex in pingpong, perform Laplacian interations
+  for(int it = 0; it < g_k_num_iterations; it++) {
+
+      for(int j = 0; j < nVertices; j++) {
+          // get Vertices neighbor from pingpong
+          STShape::VertexIndexSet vSet = pingpong->GetNeighboringVertices(j);
+          STShape::Vertex centerVertex = pingpong->GetVertex(j);
+
+          // calculate update position
+          STPoint3 position(0, 0, 0);
+
+          std::set<STShape::Index>::iterator iSet;
+          for(iSet = vSet.begin(); iSet != vSet.end(); ++iSet) {
+              position.x += pingpong->GetVertex(*iSet).position.x;
+              position.y += pingpong->GetVertex(*iSet).position.y;
+              position.z += pingpong->GetVertex(*iSet).position.z;
+          }
+
+          position.x = position.x / vSet.size();
+          position.y = position.y / vSet.size();
+          position.z = position.z / vSet.size();
+
+          // calculate b = position - (alpha * origin + (1 - alpha) * q(previous))
+          STPoint3 b(0, 0, 0);
+          STShape::Vertex originVertex = golden_shape->GetVertex(j);
+
+          b.x = position.x - (alpha*originVertex.position.x + (1-alpha) * centerVertex.position.x);
+          b.y = position.y - (alpha*originVertex.position.y + (1-alpha) * centerVertex.position.y);
+          b.z = position.z - (alpha*originVertex.position.z + (1-alpha) * centerVertex.position.z);         
+
+          // update b to bShape
+          centerVertex.position.x = b.x;
+          centerVertex.position.y = b.y;
+          centerVertex.position.z = b.z;
+
+          bShape->SetVertex(j, centerVertex);
+      }
+
+      // Second update
+      for(int j = 0; j < nVertices; j++) {
+          // get Vertices neighbor from pingpong
+          STShape::VertexIndexSet vSet = pingpong->GetNeighboringVertices(j);
+          STShape::Vertex centerVertex = pingpong->GetVertex(j);
+          STShape::Vertex bShapeVertex = bShape->GetVertex(j);
+
+          // calculate update position
+          STPoint3 bPosition(0, 0, 0);
+
+          std::set<STShape::Index>::iterator iSet;
+          for(iSet = vSet.begin(); iSet != vSet.end(); ++iSet) {
+              bPosition.x += bShape->GetVertex(*iSet).position.x;
+              bPosition.y += bShape->GetVertex(*iSet).position.y;
+              bPosition.z += bShape->GetVertex(*iSet).position.z;            
+          }
+
+          bPosition.x = bPosition.x / vSet.size();
+          bPosition.y = bPosition.y / vSet.size();
+          bPosition.z = bPosition.z / vSet.size();         
+
+          centerVertex.position.x -= (beta*bShapeVertex.position.x + (1-beta)*bPosition.x);
+          centerVertex.position.y -= (beta*bShapeVertex.position.y + (1-beta)*bPosition.y);
+          centerVertex.position.z -= (beta*bShapeVertex.position.z + (1-beta)*bPosition.z);
+
+          // set Vertex in g_shape
+          g_shape->SetVertex(j, centerVertex);     
+      }
+
+      delete pingpong;
+      pingpong = new STShape(g_shape);
+  }
+
+  if(pingpong) {
+      delete pingpong;
+  }
+
+  if(bShape)
+      delete bShape;
+
+  g_shape->GenerateNormals();
+}
+
 void computeLaplacianSmoothedMesh()
 {
   // Do it!
+  float lamda = 1;
+  //float lamda = 0;
+  STShape *pingpong;
+  pingpong = new STShape(golden_shape);
+
+  int nVertices = golden_shape->GetNumVertices();
+
+  int mul = 1;
+  if(taubinFlag)
+      mul = 2;
+  // For each vertex in pingpong, perform Laplacian interations
+  for(int it = 0; it < g_k_num_iterations * mul; it++) {
+      if(taubinFlag) {
+          lamda = 0.9;
+          if(it % 2 == 1) {
+              lamda = -1;
+          }
+      }
+
+      for(int j = 0; j < nVertices; j++) {
+          // get Vertices neighbor from pingpong
+          STShape::VertexIndexSet vSet = pingpong->GetNeighboringVertices(j);
+          STShape::Vertex centerVertex = pingpong->GetVertex(j);
+
+          // calculate update position
+          STPoint3 position(0, 0, 0);
+
+          std::set<STShape::Index>::iterator iSet;
+          for(iSet = vSet.begin(); iSet != vSet.end(); ++iSet) {
+              position.x += pingpong->GetVertex(*iSet).position.x;
+              position.y += pingpong->GetVertex(*iSet).position.y;
+              position.z += pingpong->GetVertex(*iSet).position.z;
+          }
+
+          position.x = position.x / vSet.size();
+          position.y = position.y / vSet.size();
+          position.z = position.z / vSet.size();
+
+          // dp
+          STPoint3 dp(0, 0, 0);
+          dp.x = position.x - centerVertex.position.x;
+          dp.y = position.y - centerVertex.position.y;
+          dp.z = position.z - centerVertex.position.z;
+
+          // update centerVertex
+#if DEBUG
+          printf("before centerVertex %f %f %f \n", centerVertex.position.x, centerVertex.position.y, centerVertex.position.z);
+#endif
+
+          centerVertex.position.x += lamda * dp.x;
+          centerVertex.position.y += lamda * dp.y;
+          centerVertex.position.z += lamda * dp.z;
+
+#if DEBUG
+          printf("end centerVertex %f %f %f \n", centerVertex.position.x, centerVertex.position.y, centerVertex.position.z);
+#endif
+
+          // set Vertex in g_shape
+          g_shape->SetVertex(j, centerVertex);
+      }
+
+      delete pingpong;
+      pingpong = new STShape(g_shape);
+  }
+
+  if(pingpong) {
+      delete pingpong;
+  }
+
+  g_shape->GenerateNormals();
 }
 
 //--------------------------------------------------------- 
@@ -85,6 +254,18 @@ void display()
 //---------------------------------------------------------
 void keyboard(unsigned char key, int x, int y)
 {
+  if (key == 'q' || key == 'Q' || key == 27) {
+      if(g_shape) {
+          delete g_shape;
+      }
+
+      if(golden_shape) {
+          delete golden_shape;
+      }
+
+      exit(0);
+   }
+
   switch(key) {
     case '1':
       g_k_num_iterations = 1;
@@ -107,13 +288,38 @@ void keyboard(unsigned char key, int x, int y)
     case '7':
       g_k_num_iterations = 64;
       break;
+    case 't':
+    case 'T':
+      taubinFlag = !taubinFlag;
+      if(taubinFlag) {
+          HCFlag = false;
+          printf("taubin smoothing enabled \n");
+      } else {
+          printf("taubin smoothing disabled \n");
+      }
+      break;
+    case 'h':
+    case 'H':
+      HCFlag = !HCFlag;
+      if(HCFlag) {
+          taubinFlag = false;
+          printf("HC smoothing enabled \n");
+      } else {
+          printf("HC smoothing disabled \n");
+      }
+      break;
     default:
       break;
   }
 
   cout << "Smoothing with " << g_k_num_iterations << " iterations." << endl;
 
-  computeLaplacianSmoothedMesh();
+  if(HCFlag) {
+      HC_algorithm();
+  } else {
+      computeLaplacianSmoothedMesh();
+  }
+
   glutPostRedisplay();
 }
 
@@ -173,6 +379,8 @@ void motionFunc(int x, int y)
 void setupScene()
 {
   g_shape = new STShape("bunny.obj");
+  //g_shape = STShapes::CreateThickCylinder(0.02, 0.02, 0.05);
+  golden_shape = new STShape(g_shape);
 
   glClearColor(0.0, 0.0, 0.0, 0.0);
 

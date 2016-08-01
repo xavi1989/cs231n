@@ -57,6 +57,17 @@ STShape::STShape()
 {
 }
 
+//
+// Create an STShape by copying an STShape.
+//
+STShape::STShape(const STShape * shape)
+{
+    mVertices = shape->mVertices;
+    mFaces = shape->mFaces;
+
+    rebuildNeighboringVerticesMap();
+}
+
 // Create an STShape from vertices and faces. The entries
 // in the face array point into the vertex array.
 STShape::STShape(const VertexArray& vertices, const FaceArray& faces)
