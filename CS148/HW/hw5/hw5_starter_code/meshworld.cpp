@@ -52,6 +52,118 @@ double g_rot_angle_y = 0.0;
 // of "g_shape" which models "g_k_num_iterations" of 
 // Laplacian smoothing.
 //---------------------------------------------------------
+struct _edge_ {
+  STVector3 e1;
+  STVector3 e2;
+} Edge;
+
+struct _edgecomp_ {
+  bool operator() (const Edge &e1, const Edge &e2) const {
+    // sort based on the first axis
+    return e1.x < e2.x;
+  }
+}
+
+void CatmullClarkSubdivision()
+{
+  std:;map<size_t, vector<size_t> > vertexFaceMap;
+
+  std::map<size_t, STVector3> FacepointsArray;
+  std::map<Edge, STVector3, edgecomp> EdgepointsArray;
+  std:;map<size_t, STVector3> VertexpointsArray;
+
+  STShape *pingpong;
+  pingpong = new STShape(golden_shape);
+
+  // generate vertexfaceMap
+  for(int i=0; i<pingpong->GetNumFaces(); i++) {
+    for(int j=0; j<3; j++) {
+        size_t vertexIndex = pingpong->GetFace(i).GetIndex(j);
+        std::map<size_t, vector<size_t> >::iterator it;
+        it = vertexFaceMap.find(vertexIndex);
+        if(it != vertexFaceMap.end()) {
+            //Find it
+            if(!vertexFaceMap[vertexIndex].size()) {
+                vertexFaceMap[vertexIndex].push_back(i);
+            } else {
+                for(int ii=0; ii<vertexFaceMap[vertexIndex].size(); ii++) {
+                    if(j == vertexFaceMap[vertexIndex][ii]) {
+                        break;
+                    }
+                }
+                if(ii == vertexFaceMap[vertexIndex].size()) {
+                    vertexFaceMap[vertexIndex].push_back(i);
+                }
+            }
+        } else {
+            vector<size_t> tmp;
+            tmp.push_back(i);
+            vertexFaceMap.intert(std::pair<size_t, vector<size_t> >(vertexIndex, tmp));
+        }
+    }
+  }
+
+#if 0
+  // generate facepoints array
+  int nFaces = pingpong->GetNumFaces();
+  for(int i=0; i<nFaces; i++) {
+    STVector3 point(0, 0, 0);
+
+    for(int j=0; j<3; j++) {
+        size_t vertexIndex = pingpong->GetFace(i).GetIndex(j);
+        STShape::Vertex centerVertex = pingpong->GetVertex(vertexIndex);
+        point.x += centerVertex.position.x;
+        point.y += centerVertex.position.y;
+        point.z += centerVertex.position.z;
+    }
+    point = point / 3.0;
+    FacepointsArray.insert(std::pair<size_t, STVector3>(i, point));
+  }
+
+  // generate edgepoints array
+  int nVertex = pingpong->GetNumVertices();
+  for(int i=0; i<nVertex; i++) {
+    STShape::VertexIndexSet vSet = pingpong->GetNeighboringVertices(i);
+
+    STVector3 e1(0, 0, 0);
+    STVector3 e2(0, 0, 0);
+    STVector3 ePoint(0, 0, 0);
+
+    e1.x = pingpong->GetVertex(i).position.x;
+    e1.y = pingpong->GetVertex(i).position.y;
+    e1.z = pingpong->GetVertex(i).position.z;
+
+    // for each neighbor vertices
+    std::set<STShape::Index>::iterator iSet;
+    for(iSet = vSet.begin(); iSet != vSet.end(); ++iSet) {
+      e2.x += pingpong->GetVertex(*iSet).position.x;
+      e2.y += pingpong->GetVertex(*iSet).position.y;
+      e2.z += pingpong->GetVertex(*iSet).position.z;
+
+      // check if (e1, e2) in the map
+      Edge tmp_edge;
+      tmp_edge.e1 = e1.x < e2.x ? e1 : e2;
+      tmp_edge.e1 = e1.x > e2.x ? e1 : e2;
+
+      std::map<Edge, STVector3>::iterator edgeIt;
+      edgeIt = EdgepointsArray.find(tmp_edge);
+      if(edgeIt != EdgepointsArray.end()) {
+        //find it
+        printf("tmp edge is e1 %f %f %f e2 %f %f %f \n", e1.x, e1.y, e1.z, e2.x, e2.y, e2.z);
+        printf("edgeIt is   e1 %f %f %f e2 %f %f %f \n", edgeIt->e1.x, edgeIt->e1.y, edgeIt->e1.z, edgeIt->e2.x, edgeIt->e2.y, edgeIt->e2.z);
+        continue;
+      }
+
+      // it is a new edge
+      // get face point
+      for()
+      ePoint = (e1 + e2) / 2;
+      
+    }
+  }
+#endif
+}
+
 
 void HC_algorithm()
 {
