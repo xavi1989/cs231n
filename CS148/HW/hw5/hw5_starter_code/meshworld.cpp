@@ -52,29 +52,38 @@ double g_rot_angle_y = 0.0;
 // of "g_shape" which models "g_k_num_iterations" of 
 // Laplacian smoothing.
 //---------------------------------------------------------
-struct _edge_ {
-  STVector3 e1;
-  STVector3 e2;
-} Edge;
+struct Edge {
+  size_t v1;
+  size_t v2;
+};
 
-struct _edgecomp_ {
+struct edgecomp {
   bool operator() (const Edge &e1, const Edge &e2) const {
     // sort based on the first axis
-    return e1.x < e2.x;
+    return e1.v1 < e2.v1;
   }
+};
+
+void getedgeFaceIndex(size_t v1, size_t v2, vector<size_t> &edgeFaceIndex, std::map<size_t, vector<size_t> > &vertexFaceMap)
+{
+    vector<size_t> v1Map = vertexFaceMap[v1];
+    vector<size_t> v2Map = vertexFaceMap[v2];
+
+    for(int i=0; i<v1Map.size(); i++) {
+        for(int j=0; j<v2Map.size(); j++) {
+            if(v1Map[i] == v2Map[j]) {
+                edgeFaceIndex.push_back(v1Map[i]);
+            }
+        }
+    }
+
+    if(edgeFaceIndex.size() > 2) {
+        printf("error, more than two faces with one edge \n");
+    }
 }
 
-void CatmullClarkSubdivision()
+void GenerateVertexFaceMap(const STShape *pingpong, std::map<size_t, vector<size_t> > &vertexFaceMap)
 {
-  std:;map<size_t, vector<size_t> > vertexFaceMap;
-
-  std::map<size_t, STVector3> FacepointsArray;
-  std::map<Edge, STVector3, edgecomp> EdgepointsArray;
-  std:;map<size_t, STVector3> VertexpointsArray;
-
-  STShape *pingpong;
-  pingpong = new STShape(golden_shape);
-
   // generate vertexfaceMap
   for(int i=0; i<pingpong->GetNumFaces(); i++) {
     for(int j=0; j<3; j++) {
@@ -86,8 +95,9 @@ void CatmullClarkSubdivision()
             if(!vertexFaceMap[vertexIndex].size()) {
                 vertexFaceMap[vertexIndex].push_back(i);
             } else {
-                for(int ii=0; ii<vertexFaceMap[vertexIndex].size(); ii++) {
-                    if(j == vertexFaceMap[vertexIndex][ii]) {
+                int ii = 0;
+                for(ii=0; ii<vertexFaceMap[vertexIndex].size(); ii++) {
+                    if(i == vertexFaceMap[vertexIndex][ii]) {
                         break;
                     }
                 }
@@ -98,13 +108,55 @@ void CatmullClarkSubdivision()
         } else {
             vector<size_t> tmp;
             tmp.push_back(i);
-            vertexFaceMap.intert(std::pair<size_t, vector<size_t> >(vertexIndex, tmp));
+            vertexFaceMap.insert(std::pair<size_t, vector<size_t> >(vertexIndex, tmp));
         }
     }
   }
 
-#if 0
-  // generate facepoints array
+#if DEBUG_VERTEXFACEMAP
+    // find all the face that has vertex 0
+    size_t vertexI = 0;
+    for(int i=0; i<pingpong->GetNumFaces(); i++) {
+        for(int j=0; j<3; j++) {
+            size_t vertexIndex = pingpong->GetFace(i).GetIndex(j);
+            if(vertexIndex == vertexI) {
+                printf(" %ld  ", i);
+            }
+        }
+    }
+    printf(" \n ");
+    vertexI = 1;
+    for(int i=0; i<pingpong->GetNumFaces(); i++) {
+        for(int j=0; j<3; j++) {
+            size_t vertexIndex = pingpong->GetFace(i).GetIndex(j);
+            if(vertexIndex == vertexI) {
+                printf(" %ld  ", i);
+            }
+        }
+    }
+    printf(" \n ");
+
+  // some test code
+  int faceIndex = 0;
+  size_t vertexIndex[3];
+  vertexIndex[0] = pingpong->GetFace(faceIndex).GetIndex(0);
+  vertexIndex[1] = pingpong->GetFace(faceIndex).GetIndex(1);
+  vertexIndex[2] = pingpong->GetFace(faceIndex).GetIndex(2);
+
+  printf("vertex of face is %d %d %d \n", vertexIndex[0], vertexIndex[1], vertexIndex[2]);
+
+  for(int i=0; i<3; i++) {
+    vector<size_t> tmp = vertexFaceMap[vertexIndex[i]];
+    for(int j=0; j<tmp.size(); j++) {
+        printf("  %d ", tmp[j]);
+    }
+    printf("\n");
+  }
+#endif
+}
+
+void GenerateFacePointsArray(const STShape *pingpong, std::map<size_t, STVector3> &FacepointsArray)
+{
   int nFaces = pingpong->GetNumFaces();
   for(int i=0; i<nFaces; i++) {
     STVector3 point(0, 0, 0);
@@ -119,15 +171,22 @@ void CatmullClarkSubdivision()
     point = point / 3.0;
     FacepointsArray.insert(std::pair<size_t, STVector3>(i, point));
   }
+}
 
+void GenerateEdgePointArray(STShape *pingpong,
+                            std::map<size_t, STVector3> &FacepointsArray,
+                            std::map<size_t, vector<size_t> > &vertexFaceMap,
+                            std::map<Edge, STVector3, edgecomp> &EdgepointsArray)
+{
   // generate edgepoints array
   int nVertex = pingpong->GetNumVertices();
-  for(int i=0; i<nVertex; i++) {
+  for(size_t i=0; i<nVertex; i++) {
     STShape::VertexIndexSet vSet = pingpong->GetNeighboringVertices(i);
 
-    STVector3 e1(0, 0, 0);
-    STVector3 e2(0, 0, 0);
+    STVector3 e1(0, 0, 0); // i
+    STVector3 e2(0, 0, 0); // *iSet
     STVector3 ePoint(0, 0, 0);
+    STVector3 fPoint(0, 0, 0);
 
     e1.x = pingpong->GetVertex(i).position.x;
     e1.y = pingpong->GetVertex(i).position.y;
@@ -142,26 +201,124 @@ void CatmullClarkSubdivision()
 
       // check if (e1, e2) in the map
       Edge tmp_edge;
-      tmp_edge.e1 = e1.x < e2.x ? e1 : e2;
-      tmp_edge.e1 = e1.x > e2.x ? e1 : e2;
+      tmp_edge.v1 = i<(*iSet)? i : (*iSet);
+      tmp_edge.v2 = i>(*iSet)? i : (*iSet);
 
       std::map<Edge, STVector3>::iterator edgeIt;
       edgeIt = EdgepointsArray.find(tmp_edge);
       if(edgeIt != EdgepointsArray.end()) {
         //find it
-        printf("tmp edge is e1 %f %f %f e2 %f %f %f \n", e1.x, e1.y, e1.z, e2.x, e2.y, e2.z);
-        printf("edgeIt is   e1 %f %f %f e2 %f %f %f \n", edgeIt->e1.x, edgeIt->e1.y, edgeIt->e1.z, edgeIt->e2.x, edgeIt->e2.y, edgeIt->e2.z);
         continue;
       }
 
       // it is a new edge
       // get face point
-      for()
+      vector<size_t> edgeFaceIndex;
+      getedgeFaceIndex(i, *iSet, edgeFaceIndex, vertexFaceMap);
+
       ePoint = (e1 + e2) / 2;
-      
+      fPoint = (FacepointsArray[edgeFaceIndex[0]] + FacepointsArray[edgeFaceIndex[1]]) / 2;
+      ePoint = (ePoint + fPoint) / 2.0;
+
+      EdgepointsArray.insert(std::pair<Edge, STVector3>(tmp_edge, ePoint));
     }
+  }    
+}
+
+void GenerateVertexPointsArray(STShape *pingpong,
+                               std::map<size_t, STVector3> &FacepointsArray,
+                               std::map<size_t, vector<size_t> > &vertexFaceMap,
+                               std::map<Edge, STVector3, edgecomp> &EdgepointsArray,
+                               std::map<size_t, STVector3> &VertexpointsArray)
+{
+  int nVertex = pingpong->GetNumVertices();
+  for(size_t i=0; i<nVertex; i++) {
+      STVector3 vPoint(0, 0, 0);
+
+      STShape::VertexIndexSet vSet = pingpong->GetNeighboringVertices(i);
+      int valence = vSet.size();
+
+      // Get Q: average of face points of a given vertex
+      STVector3 Qpoint(0, 0, 0);
+      vector<size_t> nFaceIndex = vertexFaceMap[i];
+      for(int nF=0; nF<nFaceIndex.size(); nF++) {
+          Qpoint += FacepointsArray[nFaceIndex[nF]];
+      }
+      Qpoint = Qpoint / nFaceIndex.size();
+
+      // Get E: average edge vertex connected to a give vertex
+      STVector3 Epoint(0, 0, 0);
+      std::set<STShape::Index>::iterator iSet;
+      for(iSet = vSet.begin(); iSet != vSet.end(); ++iSet) {
+          Edge tmp_edge;
+          tmp_edge.v1 = i<(*iSet)? i : (*iSet);
+          tmp_edge.v2 = i>(*iSet)? i : (*iSet);
+          
+          Epoint += EdgepointsArray[tmp_edge];
+      }
+      Epoint = Epoint / vSet.size();
+
+      // Get S
+      STVector3 Spoint(0, 0, 0);
+      Spoint.x = pingpong->GetVertex(i).position.x;
+      Spoint.y = pingpong->GetVertex(i).position.y;
+      Spoint.z = pingpong->GetVertex(i).position.z;
+
+      vPoint = (-Qpoint + 4 * Epoint + (valence - 3) * Spoint) / valence;
+
+      VertexpointsArray.insert(std::pair<size_t, STVector3>(i, vPoint));
   }
-#endif
+}
+
+void rebuildTopology(STShape *pingpong,
+                     std::map<Edge, STVector3, edgecomp> EdgepointsArray,
+                     std::map<size_t, STVector3> VertexpointsArray,
+                     VertexArray& vertices,
+                     FaceArray& faces)
+{
+    // set up FaceArray
+    int nFaces = pingpong->GetNumFaces();
+    for(int i=0; i<nFaces; i++) {
+        // one triangle face will split into 4 small triangles
+        // get total 6 vertices points v1 e1 v2 e2 v3 e3
+        size_t v1, e1, v2, e2, v3, e3;
+        v1 = pingpong->GetFace(i).GetIndex(0);
+        v2 = pingpong->GetFace(i).GetIndex(1);
+        v3 = pingpong->GetFace(i).GetIndex(2);
+
+        Edge tmp_edge;
+        tmp_edge.v1 = i<(*iSet)? i : (*iSet);
+        tmp_edge.v2 = i>(*iSet)? i : (*iSet);
+        
+
+    }
+}
+
+void CatmullClarkSubdivision()
+{
+  std::map<size_t, vector<size_t> > vertexFaceMap;
+
+  std::map<size_t, STVector3> FacepointsArray;
+  std::map<Edge, STVector3, edgecomp> EdgepointsArray;
+  std::map<size_t, STVector3> VertexpointsArray;
+
+  STShape *pingpong;
+  pingpong = new STShape(golden_shape);
+  
+  // generate vertexfaceMap
+  GenerateVertexFaceMap(pingpong, vertexFaceMap);
+
+  // generate facepoints array
+  GenerateFacePointsArray(pingpong, FacepointsArray);
+
+  // generate edgepoint array
+  GenerateEdgePointArray(pingpong, FacepointsArray, vertexFaceMap, EdgepointsArray);
+
+  // Generate Vertex Points
+  GenerateVertexPointsArray(pingpong, FacepointsArray, vertexFaceMap, EdgepointsArray, VertexpointsArray);
+
+  // Rebuild Topology
+  
 }
 
 
@@ -426,11 +583,16 @@ void keyboard(unsigned char key, int x, int y)
 
   cout << "Smoothing with " << g_k_num_iterations << " iterations." << endl;
 
+  CatmullClarkSubdivision();
+
+#if 0
+
   if(HCFlag) {
       HC_algorithm();
   } else {
       computeLaplacianSmoothedMesh();
   }
+#endif
 
   glutPostRedisplay();
 }
