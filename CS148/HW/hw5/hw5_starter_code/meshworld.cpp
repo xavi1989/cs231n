@@ -273,8 +273,8 @@ void GenerateVertexPointsArray(STShape *pingpong,
 void rebuildTopology(STShape *pingpong,
                      std::map<Edge, STVector3, edgecomp> EdgepointsArray,
                      std::map<size_t, STVector3> VertexpointsArray,
-                     VertexArray& vertices,
-                     FaceArray& faces)
+                     STShape::VertexArray& vertices,
+                     STShape::FaceArray& faces)
 {
     // set up FaceArray
     int nFaces = pingpong->GetNumFaces();
@@ -285,12 +285,6 @@ void rebuildTopology(STShape *pingpong,
         v1 = pingpong->GetFace(i).GetIndex(0);
         v2 = pingpong->GetFace(i).GetIndex(1);
         v3 = pingpong->GetFace(i).GetIndex(2);
-
-        Edge tmp_edge;
-        tmp_edge.v1 = i<(*iSet)? i : (*iSet);
-        tmp_edge.v2 = i>(*iSet)? i : (*iSet);
-        
-
     }
 }
 
@@ -392,9 +386,9 @@ void HC_algorithm()
           bPosition.y = bPosition.y / vSet.size();
           bPosition.z = bPosition.z / vSet.size();         
 
-          centerVertex.position.x -= (beta*bShapeVertex.position.x + (1-beta)*bPosition.x);
-          centerVertex.position.y -= (beta*bShapeVertex.position.y + (1-beta)*bPosition.y);
-          centerVertex.position.z -= (beta*bShapeVertex.position.z + (1-beta)*bPosition.z);
+          centerVertex.position.x += (beta*bShapeVertex.position.x + (1-beta)*bPosition.x);
+          centerVertex.position.y += (beta*bShapeVertex.position.y + (1-beta)*bPosition.y);
+          centerVertex.position.z += (beta*bShapeVertex.position.z + (1-beta)*bPosition.z);
 
           // set Vertex in g_shape
           g_shape->SetVertex(j, centerVertex);     
@@ -583,16 +577,14 @@ void keyboard(unsigned char key, int x, int y)
 
   cout << "Smoothing with " << g_k_num_iterations << " iterations." << endl;
 
-  CatmullClarkSubdivision();
+  //CatmullClarkSubdivision();
 
-#if 0
 
   if(HCFlag) {
       HC_algorithm();
   } else {
       computeLaplacianSmoothedMesh();
   }
-#endif
 
   glutPostRedisplay();
 }
