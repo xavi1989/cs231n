@@ -17,10 +17,6 @@ private:
     int x;
     int y;
 
-    // velocity
-    float momentum;
-    float momentumX;
-
     float thick; // [0, 1] thick1 = (r- r.min) / (r.max - r.min)
                  // consider the shape thick = thick1/((spreadX + spreadY)*0.5 + 1)
 
@@ -42,6 +38,10 @@ public:
     float r;
     float spreadX;
     float spreadY;
+
+    // velocity
+    float momentum;
+    float momentumX;
 
     // Collision
     bool isKilled;
@@ -89,7 +89,7 @@ public:
 
     void updatePosition();
     void CreepDown();
-    void Drop::UpdateTrail(vector<Drop> &result);
+    void UpdateTrail(vector<Drop> &result);
 };
 
 void Drop::DropCleanUp() {
@@ -253,7 +253,7 @@ void Drop::draw() {
 
 void Drop::CreepDown() {
     if((float)(rand() % R_MAX) / R_MAX * this->r / R_MAX > CREEPDOWN_RATE) {
-        this->momentum += float)(rand() % R_MAX) / R_MAX * CREEPDOWN_VELOCITY;
+        this->momentum += (float)(rand() % R_MAX) / R_MAX * CREEPDOWN_VELOCITY;
     }
 
     if(this->r < R_MIN && (float)(rand() % R_MAX) / R_MAX > SHRINK_RATE) {
@@ -277,11 +277,11 @@ void Drop::UpdateTrail(vector<Drop> &result) {
         float randX = (((float)(rand() % R_MAX) / R_MAX) - 0.5) * this->r * TRAIL_OFFSET;
         float randY = ((float)(rand() % R_MAX) / R_MAX) * this->r * TRAIL_OFFSET;
         float randR = ((float)(rand() % R_MAX) / R_MAX) * (TRAIL_SIZE_MAX - TRAIL_SIZE_MIN) + TRAIL_SIZE_MIN;
-        Drop traiDrop(this->x+randX, this->y-randY, this->r * randR, this->width, this->height, this->Program);
+        Drop trailDrop(this->x+randX, this->y-randY, this->r * randR, this->width, this->height, this->Program);
         result.push_back(trailDrop);
 
         this->r *= 0.97;
-        drop.lastSpawn = 0;
-        drop.nextSpawn = R_MAX - this->momentum * 2 + (R_MAX - this->r);
+        trailDrop.lastSpawn = 0;
+        trailDrop.nextSpawn = R_MAX - this->momentum * 2 + (R_MAX - this->r);
     }
 }

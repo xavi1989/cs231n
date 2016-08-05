@@ -24,6 +24,9 @@ class Rain {
         void AddMoreRainDrops();
 
         void UpdateRain();
+
+        void RainDropCollision(int index, int length);
+
     private:
         vector<Drop> rainDrops;
         int counter;
@@ -112,7 +115,7 @@ void Rain::UpdateRain() {
 
         if(!trailDrop.size()) {
             for(int j=0; j<trailDrop.size(); j++) {
-                rainDrops[i].push_back(trailDrop[i]);
+                rainDrops.push_back(trailDrop[j]);
             }
         }
 
@@ -136,18 +139,18 @@ void Rain::RainDropCollision(int index, int length) {
         if(index == i || rainDrops[i].isKilled == true)
             continue;
 
-        float dx = drop.getX() - rainDrops[i].getX;
-        float dy = drop.getY() - rainDrops[i].getY;
+        float dx = drop.getX() - rainDrops[i].getX();
+        float dy = drop.getY() - rainDrops[i].getY();
         float distance = sqrt(dx * dx + dy * dy);
 
-        if(d < (drop.r + rainDrops[i].r)) {
+        if(distance < (drop.r + rainDrops[i].r)) {
             // merge the two rain drops
             float r1 = drop.r;
             float r2 = rainDrops[i].r;
 
             float targetR = sqrt(r1 * r1 + r2 * r2);
-            if(targetR > MAX_R)
-                targetR = MAX_R;
+            if(targetR > R_MAX)
+                targetR = R_MAX;
 
             drop.momentumX += dx * 0.1;
             drop.momentum += targetR;
