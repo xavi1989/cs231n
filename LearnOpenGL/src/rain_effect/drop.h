@@ -17,11 +17,6 @@ private:
     int x;
     int y;
 
-    // shape
-    float r;
-    float spreadX;
-    float spreadY;
-
     // velocity
     float momentum;
     float momentumX;
@@ -43,9 +38,19 @@ private:
     
 
 public:
+    // shape
+    float r;
+    float spreadX;
+    float spreadY;
+
     // Collision
     bool isKilled;
     float shrink;
+
+    // trails
+    float trailRate;
+    float lastSpawn;
+    float nextSpawn;
 
     Drop(int x, int y, int r, int width, int height, GLuint Program);
     Drop(int width, int height, GLuint Program);
@@ -83,6 +88,8 @@ public:
     }
 
     void updatePosition();
+    void CreepDown();
+    void Drop::UpdateTrail(vector<Drop> &result);
 };
 
 void Drop::DropCleanUp() {
@@ -100,7 +107,20 @@ Drop::Drop(int x, int y, int r, int width, int height, GLuint Program) {
     this->height = height;
     this->Program = Program;
     this->spreadX = 1;
-    this->spreadY = 1.5;
+    // 1.2 - 3
+    this->spreadY = 1.2 + ((float)(rand() % 100)) / 100.0 * 1.8;
+
+    // velocity
+    this->momentum = 0;
+
+    // Collision
+    this->isKilled = false;
+    this->shrink = 0;
+
+    // trails
+    this->trailRate = 1;
+    this->lastSpawn = 0;
+    this->nextSpawn = 0;
 }
 
 Drop::Drop(int width, int height, GLuint Program) {
@@ -123,7 +143,16 @@ Drop::Drop(int width, int height, GLuint Program) {
     this->spreadY = 1.2 + ((float)(rand() % 100)) / 100.0 * 1.8;
 
     // velocity
-    this->momentum = 3;
+    this->momentum = 0;
+
+    // Collision
+    this->isKilled = false;
+    this->shrink = 0;
+
+    // trails
+    this->trailRate = 1;
+    this->lastSpawn = 0;
+    this->nextSpawn = 0;
 }
 
 void Drop::updatePosition() {
@@ -216,4 +245,43 @@ void Drop::draw() {
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);  
+}
+
+#define CREEPDOWN_RATE 0.3
+#define CREEPDOWN_VELOCITY 2
+#define SHRINK_RATE 0.5
+
+void Drop::CreepDown() {
+    if((float)(rand() % R_MAX) / R_MAX * this->r / R_MAX > CREEPDOWN_RATE) {
+        this->momentum += float)(rand() % R_MAX) / R_MAX * CREEPDOWN_VELOCITY;
+    }
+
+    if(this->r < R_MIN && (float)(rand() % R_MAX) / R_MAX > SHRINK_RATE) {
+        this->shrink += 1;
+    }
+
+    this->r -= this->shrink;
+    if(this->r <= 0) {
+        this->isKilled = true;
+    }
+}
+
+#define TRAIL_OFFSET     0.1
+#define TRAIL_SIZE_MIN   0.2
+#define TRAIL_SIZE_MAX   0.5
+
+void Drop::UpdateTrail(vector<Drop> &result) {
+    this->lastSpawn += this->momentum * this->trailRate;
+    if(this->lastSpawn > this->nextSpawn) {
+        // create trail drop
+        float randX = (((float)(rand() % R_MAX) / R_MAX) - 0.5) * this->r * TRAIL_OFFSET;
+        float randY = ((float)(rand() % R_MAX) / R_MAX) * this->r * TRAIL_OFFSET;
+        float randR = ((float)(rand() % R_MAX) / R_MAX) * (TRAIL_SIZE_MAX - TRAIL_SIZE_MIN) + TRAIL_SIZE_MIN;
+        Drop traiDrop(this->x+randX, this->y-randY, this->r * randR, this->width, this->height, this->Program);
+        result.push_back(trailDrop);
+
+        this->r *= 0.97;
+        drop.lastSpawn = 0;
+        drop.nextSpawn = R_MAX - this->momentum * 2 + (R_MAX - this->r);
+    }
 }

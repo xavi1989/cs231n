@@ -104,16 +104,59 @@ void Rain::UpdateRain() {
         }
 
         // Creep Down
-        
-        //shrink
+        rainDrops[i].CreepDown();
 
         // Update Trail
+        vector<Drop> trailDrop;
+        rainDrops[i].UpdateTrail(trailDrop);
+
+        if(!trailDrop.size()) {
+            for(int j=0; j<trailDrop.size(); j++) {
+                rainDrops[i].push_back(trailDrop[i]);
+            }
+        }
+
+        // Check Collision
+        RainDropCollision(i, length);   
+
         // Update position
         rainDrops[i].updatePosition();
     }
 
 
 }
+
+void Rain::RainDropCollision(int index, int length) {
+    Drop drop = rainDrops[index];
+
+    if(drop.isKilled)
+        return;
+
+    for(int i=0; i<length; i++) {
+        if(index == i || rainDrops[i].isKilled == true)
+            continue;
+
+        float dx = drop.getX() - rainDrops[i].getX;
+        float dy = drop.getY() - rainDrops[i].getY;
+        float distance = sqrt(dx * dx + dy * dy);
+
+        if(d < (drop.r + rainDrops[i].r)) {
+            // merge the two rain drops
+            float r1 = drop.r;
+            float r2 = rainDrops[i].r;
+
+            float targetR = sqrt(r1 * r1 + r2 * r2);
+            if(targetR > MAX_R)
+                targetR = MAX_R;
+
+            drop.momentumX += dx * 0.1;
+            drop.momentum += targetR;
+
+            rainDrops[i].isKilled = true;
+        }
+    }
+}
+
 
 void Rain::Draw() {
     UpdateRain();
