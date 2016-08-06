@@ -66,7 +66,7 @@ Rain::Rain(int width, int height, int init_counter, GLuint Program, GLuint x, GL
         rainDrops.push_back(tmp);
     }
 
-    dropRate = 0.0001;
+    dropRate = 0.000001;
 }
 
 void Rain::AddMoreRainDrops() {

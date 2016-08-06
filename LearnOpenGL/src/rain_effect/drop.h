@@ -1,7 +1,7 @@
 #include <stdlib.h>
 
-#define R_MIN    10
-#define R_MAX    50
+#define R_MIN    50
+#define R_MAX    100
 #define R_DELTA (R_MAX - R_MIN)
 
 #define DEBUG 0

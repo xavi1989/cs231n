@@ -26,7 +26,7 @@
 #include <opencv2/opencv.hpp>
 
 // Properties
-const GLuint SCR_WIDTH = 800, SCR_HEIGHT = 600;
+const GLuint SCR_WIDTH = 1280, SCR_HEIGHT = 800;
 
 // Function prototypes
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
@@ -136,7 +136,7 @@ int main()
     GLuint alphaTexture = loadTexture("img/drop-alpha.png");
     GLuint shineTexture = loadTexture("img/drop-shine.png");
 
-    Rain rain(SCR_WIDTH, SCR_HEIGHT, 50, dropShader.Program, alphaTexture, colorTexture, shineTexture, fgTexture, backgroundTexture);
+    Rain rain(SCR_WIDTH, SCR_HEIGHT, 5, dropShader.Program, alphaTexture, colorTexture, shineTexture, fgTexture, backgroundTexture);
 
     //rain.rainDrops[0].setTexture(alphaTexture, colorTexture, shineTexture, fgTexture, backgroundTexture);
     //rain.rainDrops[0].draw_init();
