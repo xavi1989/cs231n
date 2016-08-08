@@ -1,10 +1,12 @@
 #include <stdlib.h>
 
-#define R_MIN    50
-#define R_MAX    100
+#define R_MIN    30
+#define R_MAX    80
 #define R_DELTA (R_MAX - R_MIN)
 
-#define DEBUG 0
+#define DEBUG_DROP 0
+
+static int DROP_ID = 0;
 
 class Drop {
 
@@ -12,10 +14,6 @@ private:
     // window
     int width;
     int height;
-
-    // location
-    int x;
-    int y;
 
     float thick; // [0, 1] thick1 = (r- r.min) / (r.max - r.min)
                  // consider the shape thick = thick1/((spreadX + spreadY)*0.5 + 1)
@@ -31,9 +29,13 @@ private:
     GLuint shineMap;
     GLuint fgMap;
     GLuint bgMap;
-    
+    int id;
 
 public:
+    // location
+    int x;
+    int y;
+
     // shape
     float r;
     float spreadX;
@@ -51,6 +53,9 @@ public:
     float trailRate;
     float lastSpawn;
     float nextSpawn;
+
+    // parent
+    int parent;
 
     Drop(int x, int y, int r, int width, int height, GLuint Program);
     Drop(int width, int height, GLuint Program);
@@ -76,6 +81,9 @@ public:
     void draw();
     int getX() {
         return this->x;
+    }
+    int getID() {
+        return this->id;
     }
     int getY() {
         return this->y;
@@ -120,7 +128,15 @@ Drop::Drop(int x, int y, int r, int width, int height, GLuint Program) {
     // trails
     this->trailRate = 1;
     this->lastSpawn = 0;
-    this->nextSpawn = 0;
+    this->nextSpawn = R_MAX - this->momentum * 2 + (R_MAX - this->r);
+
+    // drop id
+    this->id = DROP_ID++;
+    this->parent = -1;
+
+    // thick
+    this->thick = this->r < R_MIN ? 0 : (this->r - R_MIN) / R_DELTA;
+    this->thick *= 1/((this->spreadX+this->spreadY)*0.5);
 }
 
 Drop::Drop(int width, int height, GLuint Program) {
@@ -134,13 +150,11 @@ Drop::Drop(int width, int height, GLuint Program) {
     this->r = rand() % R_DELTA + R_MIN;
 
 #if DEBUG_DROP
-    this->x = 100;
-    this->y = 100;
-    this->r = 50;
+    printf("this->r is %f 11111111\n", this->r);
 #endif
     this->spreadX = 1;
     // 1.2 - 3
-    this->spreadY = 1.2 + ((float)(rand() % 100)) / 100.0 * 1.8;
+    this->spreadY = 1.1 + ((float)(rand() % 100)) / 100.0 * 1.0;
 
     // velocity
     this->momentum = 0;
@@ -152,13 +166,21 @@ Drop::Drop(int width, int height, GLuint Program) {
     // trails
     this->trailRate = 1;
     this->lastSpawn = 0;
-    this->nextSpawn = 0;
+    this->nextSpawn = R_MAX - this->momentum * 2 + (R_MAX - this->r);
+
+    // drop id
+    this->id = DROP_ID++;
+    this->parent = -1;
 }
 
 void Drop::updatePosition() {
     if(isKilled) {
         return;
     }
+
+    // slowdown momentum
+    this->momentum *= 0.9;
+    this->momentumX *= 0.9;
 
     this->y += momentum;
     this->x += momentumX;
@@ -210,6 +232,7 @@ void Drop::draw_init() {
     GLfloat h = (GLfloat)this->height;
     glUniform1f(glGetUniformLocation(this->Program, "imageWidth"), w);
     glUniform1f(glGetUniformLocation(this->Program, "imageHeight"), h);
+    glUniform1f(glGetUniformLocation(this->Program, "thick"), thick);
 }
 
 void Drop::draw() {
@@ -248,16 +271,21 @@ void Drop::draw() {
 }
 
 #define CREEPDOWN_RATE 0.3
-#define CREEPDOWN_VELOCITY 2
+#define CREEPDOWN_VELOCITY 3
 #define SHRINK_RATE 0.5
+
+#define DEBUG_SHRINK 0
 
 void Drop::CreepDown() {
     if((float)(rand() % R_MAX) / R_MAX * this->r / R_MAX > CREEPDOWN_RATE) {
-        this->momentum += (float)(rand() % R_MAX) / R_MAX * CREEPDOWN_VELOCITY;
+        this->momentum += (float)(rand() % ((int)(this->r))) / R_MAX * CREEPDOWN_VELOCITY;
     }
 
-    if(this->r < R_MIN && (float)(rand() % R_MAX) / R_MAX > SHRINK_RATE) {
-        this->shrink += 1;
+    if(this->r < R_MIN/2 && ((float)(rand() % R_MAX) / R_MAX > SHRINK_RATE)) {
+        this->shrink += 0.01;
+#if DEBUG_SHRINK
+        printf("current shrink %f  %f \n", this->shrink, this->r);
+#endif
     }
 
     this->r -= this->shrink;
@@ -267,21 +295,37 @@ void Drop::CreepDown() {
 }
 
 #define TRAIL_OFFSET     0.1
-#define TRAIL_SIZE_MIN   0.2
-#define TRAIL_SIZE_MAX   0.5
+#define TRAIL_SIZE_MIN   0.3
+#define TRAIL_SIZE_MAX   0.6
+#define DEBUG_TRAIL 0
 
 void Drop::UpdateTrail(vector<Drop> &result) {
     this->lastSpawn += this->momentum * this->trailRate;
-    if(this->lastSpawn > this->nextSpawn) {
+    if(this->lastSpawn > this->nextSpawn && this->r > R_MIN) {
         // create trail drop
-        float randX = (((float)(rand() % R_MAX) / R_MAX) - 0.5) * this->r * TRAIL_OFFSET;
-        float randY = ((float)(rand() % R_MAX) / R_MAX) * this->r * TRAIL_OFFSET;
+        int randX = (((float)(rand() % R_MAX) / R_MAX) - 0.5) * this->r * TRAIL_OFFSET;
+        int randY = ((float)(rand() % R_MAX) / R_MAX) * this->r * TRAIL_OFFSET;
         float randR = ((float)(rand() % R_MAX) / R_MAX) * (TRAIL_SIZE_MAX - TRAIL_SIZE_MIN) + TRAIL_SIZE_MIN;
+        //float randR = 1;
         Drop trailDrop(this->x+randX, this->y-randY, this->r * randR, this->width, this->height, this->Program);
+        trailDrop.setTexture(alphaMap, colorMap, shineMap, fgMap, bgMap);
+        trailDrop.draw_init();
+
+        // set the parent
+        if(this->parent == -1)
+            trailDrop.parent = this->id;
+        else
+            trailDrop.parent = this->parent;
+
+        trailDrop.spreadY = this->momentum * 0.1;
         result.push_back(trailDrop);
 
         this->r *= 0.97;
-        trailDrop.lastSpawn = 0;
-        trailDrop.nextSpawn = R_MAX - this->momentum * 2 + (R_MAX - this->r);
+        this->lastSpawn = 0;
+        this->nextSpawn = rand() % R_DELTA + R_MIN + this->momentum * 2 + (R_MAX - this->r) + 10;
+#if DEBUG_TRAIL
+        printf("create a trail position %d %d radius %f, parent drop %d %d radius %f \n", trailDrop.getX(), trailDrop.getY(), trailDrop.r, this->x, this->y, this->r);
+        printf("lastSpawn %f nextSpawn %f \n", this->lastSpawn, this->nextSpawn);
+#endif
     }
 }

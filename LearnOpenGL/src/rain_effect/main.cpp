@@ -1,6 +1,8 @@
 // Std. Includes
 #include <string>
 
+#include <unistd.h>
+
 // GLEW
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -26,8 +28,9 @@
 #include <opencv2/opencv.hpp>
 
 // Properties
-const GLuint SCR_WIDTH = 1280, SCR_HEIGHT = 800;
+const GLuint SCR_WIDTH = 1920, SCR_HEIGHT = 1080;
 
+bool stop = false;
 // Function prototypes
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
@@ -85,13 +88,6 @@ void drawBackground_init()
 // The MAIN function, from here we start our application and run our Game loop
 int main()
 {
-
-    cv::Mat png = cv::imread("img/drop-alpha.png");
-
-    for(int i=0; i<10; i++) {
-      cout<<(int)png.at<unsigned char>(i, 0)<<endl;
-    }
-
     // Init GLFW
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -151,6 +147,11 @@ int main()
         // Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
         glfwPollEvents();
 
+        if(stop) {
+            usleep(1000);
+            continue;          
+        }
+
         // Render
         // Clear the colorbuffer
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -165,7 +166,6 @@ int main()
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
 #endif
-
         //my_drop.draw();
         rain.Draw();
 
@@ -183,6 +183,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+        stop = !stop;
+    }
 }
 
 // This function loads a texture from file. Note: texture loading functions like these are usually 
@@ -199,7 +202,6 @@ GLuint loadTexture(GLchar const * path)
     if(!image)
       printf("%s \n", SOIL_last_result());
 
-    printf("width %d height %d channel %d \n", width, height, channel);
     // Assign texture to ID
     glBindTexture(GL_TEXTURE_2D, textureID);
     if(channel == 3)

@@ -100,6 +100,11 @@ void Rain::UpdateRain() {
     AddMoreRainDrops();
     sort(this->rainDrops.begin(), this->rainDrops.end(), compareDrop);
 
+#if DEBUG_DROP
+    for(int i=0; i<rainDrops.size(); i++) {
+        printf("%d rain size %f \n", i, rainDrops[i].r);
+    }
+#endif
     int length = this->rainDrops.size();
     for(int i=0; i<length; i++) {
         if(rainDrops[i].isKilled) {
@@ -113,21 +118,24 @@ void Rain::UpdateRain() {
         vector<Drop> trailDrop;
         rainDrops[i].UpdateTrail(trailDrop);
 
-        if(!trailDrop.size()) {
+        if(trailDrop.size()) {
             for(int j=0; j<trailDrop.size(); j++) {
                 rainDrops.push_back(trailDrop[j]);
             }
         }
 
-        // Check Collision
-        RainDropCollision(i, length);   
-
         // Update position
         rainDrops[i].updatePosition();
+
+        // Check Collision
+        RainDropCollision(i, length);
     }
 
 
 }
+
+#define RADIUS_RATE 0.3
+#define DEBUG_COLLISION 0
 
 void Rain::RainDropCollision(int index, int length) {
     Drop drop = rainDrops[index];
@@ -135,15 +143,23 @@ void Rain::RainDropCollision(int index, int length) {
     if(drop.isKilled)
         return;
 
-    for(int i=0; i<length; i++) {
+    for(int i=index; i<length; i++) {
         if(index == i || rainDrops[i].isKilled == true)
+            continue;
+
+        if(drop.getID() == rainDrops[i].parent || drop.parent == rainDrops[i].getID())
             continue;
 
         float dx = drop.getX() - rainDrops[i].getX();
         float dy = drop.getY() - rainDrops[i].getY();
         float distance = sqrt(dx * dx + dy * dy);
 
-        if(distance < (drop.r + rainDrops[i].r)) {
+        if(distance < (drop.r + rainDrops[i].r) * RADIUS_RATE) {
+#if DEBUG_COLLISION
+        printf("current drop index %d position %d %d radius %f id %d parent %d\n", index, drop.x, drop.y, drop.r, drop.getID(), drop.parent);
+        printf("collide drop index %d position %d %d radius %f id %d parent %d \n", i, rainDrops[i].x, rainDrops[i].y, rainDrops[i].r, rainDrops[i].getID(), rainDrops[i].parent);
+#endif
+
             // merge the two rain drops
             float r1 = drop.r;
             float r2 = rainDrops[i].r;
@@ -164,8 +180,16 @@ void Rain::RainDropCollision(int index, int length) {
 void Rain::Draw() {
     UpdateRain();
 
+#if DEBUG_TRAIL
+    int counter = 0;
+    printf("rainDrops.size() %d \n", rainDrops.size());
+#endif
+
     for(int i=0; i<rainDrops.size(); i++) {
         if(!rainDrops[i].isKilled) {
+#if DEBUG_TRAIL
+            printf("counter is %d \n", counter++);
+#endif
             rainDrops[i].draw();
         }
     }

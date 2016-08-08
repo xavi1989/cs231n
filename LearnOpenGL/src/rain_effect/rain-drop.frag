@@ -2,6 +2,7 @@
 in vec3 ourColor;
 in vec2 TexCoord;
 in vec2 resolution;
+in float u_thick;
 
 out vec4 color;
 
@@ -21,7 +22,7 @@ vec4 blend(vec4 fgColor, vec4 bgColor) {
 }
 
 vec2 parallax(float v) {
-    return v*resolution * vec2(1, 1.5);
+    return v/resolution * vec2(1, 1.5);
 }
 
 vec2 pixel() {
@@ -32,20 +33,20 @@ void main()
 {
   // Get the alpha value
   float alpha = texture(alphaTexture, TexCoord).a;
-  //alpha = clamp(alpha * 20 - 5, 0.0, 1.0);
+  alpha = clamp(alpha * 20 - 5, 0.0, 1.0);
 
   // Get Coord in the background
-  vec2 bgCoord = vec2(gl_FragCoord.x, resolution.y - gl_FragCoord.y) / resolution;
+  vec2 bgCoord = vec2(gl_FragCoord.x, resolution.y - gl_FragCoord.y) / resolution + parallax(20.0);
 
   // Get the bgTexture
-  vec4 bgColor = texture(bgTexture, bgCoord + parallax(20.0));
+  vec4 bgColor = texture(bgTexture, bgCoord + parallax(100.0));
 
   // Refraction
   vec4 location = texture(colorTexture, TexCoord);
   float x = location.g;
   float y = location.r;
   vec2 refraction = (vec2(x, y) - 0.5) * 2.0; // convert to [-1, 1]
-  vec2 refractionPos = bgCoord + pixel() * refraction * 100 + parallax(20 - 5);
+  vec2 refractionPos = bgCoord + pixel() * refraction * 200 + parallax(20 - 5);
 
   // Get the fgTexture
   vec4 fgColor = texture(fgTexture, refractionPos);
