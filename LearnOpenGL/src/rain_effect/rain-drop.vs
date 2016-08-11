@@ -6,10 +6,12 @@ layout (location = 2) in vec2 texCoord;
 uniform mat4 model;
 uniform float imageWidth;
 uniform float imageHeight;
+uniform float thick;
 
 out vec3 ourColor;
 out vec2 TexCoord;
 out vec2 resolution;
+out float u_thick;
 
 void main()
 {
@@ -19,4 +21,5 @@ void main()
 	// TexCoord = texCoord;
 	TexCoord = vec2(texCoord.x, 1.0 - texCoord.y);
     resolution = vec2(imageWidth, imageHeight);
+    u_thick = thick;
 }
