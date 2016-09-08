@@ -257,6 +257,34 @@ def event_trigger(context, data):
         print "       stock1 event trigger current price: " + str(price1) + " openPrice " + str(context.stock1.openPrice) + "percent " + percent1
         print "       stock2 event trigger current price: " + str(price2) + " openPrice " + str(context.stock2.openPrice) + "percent " + percent2
 
+def trackTheOtherStock(context, data):
+    price1 = data.current(context.stock1.stockSymbol, 'price')
+    price2 = data.current(context.stock2.stockSymbol, 'price')
+    openPrice1 = context.stock1.openPrice
+    openPrice2 = context.stock2.openPrice
+    percent1 = "{0:.0f}%".format((price1 - openPrice1) / openPrice1 * 100)
+    percent2 = "{0:.0f}%".format((price2 - openPrice2) / openPrice2 * 100)
+
+    if context.stock1.isTrigger == 1:
+        # keep an eye on stock2
+        if price2 < context.stock2.openPrice * 0.93:
+            context.stock2.isTrigger = 1
+            context.stock2.sellShare(Data=data)
+
+    if context.stock2.isTrigger == 1:
+        # keep an eye on stock1
+        if price1 < context.stock1.openPrice * 0.93:
+            context.stock1.isTrigger = 1
+            context.stock1.sellShare(Data=data)
+
+    if context.stock1.isTrigger == 1 and context.stock2.isTrigger == 1:
+        context.isTrigger = 1
+        print "Phase exception:"
+        print "       stock1 event trigger current price: " + str(price1) + " openPrice " + str(context.stock1.openPrice) + "percent " + percent1
+        print "       stock2 event trigger current price: " + str(price2) + " openPrice " + str(context.stock2.openPrice) + "percent " + percent2
+        context.state = 1
+        context.nextState = 0
+
 def handle_data(context,data):
     """
     Called every minute.
@@ -315,7 +343,6 @@ def handle_data(context,data):
             context.nextState = 3
 
     elif context.state == 3:
-        # do nothing
-        pass
-
+        # sell limit the other stock
+        trackTheOtherStock(context, data)
 
