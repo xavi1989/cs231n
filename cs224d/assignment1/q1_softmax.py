@@ -21,9 +21,11 @@ def softmax(x):
     """
 
     ### YOUR CODE HERE
-    raise NotImplementedError
+    c = x - np.min(x, axis = x.ndim - 1, keepdims=True)
+    y = np.exp(c)
+    x = y / np.sum(y, axis = x.ndim - 1, keepdims=True)
     ### END YOUR CODE
-    
+
     return x
 
 def test_softmax_basic():
@@ -58,7 +60,6 @@ def test_softmax():
     """
     print "Running your tests..."
     ### YOUR CODE HERE
-    raise NotImplementedError
     ### END YOUR CODE  
 
 if __name__ == "__main__":

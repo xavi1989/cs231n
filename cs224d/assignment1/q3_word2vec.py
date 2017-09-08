@@ -10,7 +10,8 @@ def normalizeRows(x):
     # Implement a function that normalizes each row of a matrix to have unit length
     
     ### YOUR CODE HERE
-    raise NotImplementedError
+    y = np.linalg.norm(x, axis = 1).reshape((-1, 1))
+    x = x / y
     ### END YOUR CODE
     
     return x
@@ -50,7 +51,13 @@ def softmaxCostAndGradient(predicted, target, outputVectors, dataset):
     # assignment!                                                  
     
     ### YOUR CODE HERE
-    raise NotImplementedError
+    prob = softmax(predicted.dot(outputVectors.T))
+    cost = -np.log(prob[target])
+
+    delta = cost[target] - 1
+    gradPred = delta.dot(outputVectors)
+    grad = delta.reshape((1, -1)).dot(predicted.reshape((1, -1)))
+
     ### END YOUR CODE
     
     return cost, gradPred, grad
@@ -73,7 +80,21 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
     # assignment!
     
     ### YOUR CODE HERE
-    raise NotImplementedError
+    index = [target]
+    for k in range(K):
+        idx = dataset.sampleTokenIdx()
+        while idx == target:
+            idx = dataset.sampleTokenIdx()
+        index += [idx]
+
+    U = outputVectors[index, :]
+    sign = np.ones((K+1, 1)) * (-1)
+    sign[0] = 1
+    t = sigmoid((U * sign).dot(predicted))
+    cost = np.sum(np.log(t))
+
+    gradPred = U.dot((t - 1).reshape((-1, 1)))
+    
     ### END YOUR CODE
     
     return cost, gradPred, grad
@@ -195,4 +216,4 @@ def test_word2vec():
 
 if __name__ == "__main__":
     test_normalize_rows()
-    test_word2vec()
+    #test_word2vec()
