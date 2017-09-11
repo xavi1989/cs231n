@@ -24,11 +24,15 @@ def gradcheck_naive(f, x):
         ### possible to test cost functions with built in randomness later
         ### YOUR CODE HERE:
         xGold = x[ix]
+
         x[ix] = xGold + h
-        f1, _ = f(x)
         random.setstate(rndstate)
+        f1, _ = f(x)
+
         x[ix] = xGold - h
+        random.setstate(rndstate)
         f0, _ = f(x)
+
         numgrad = (f1 - f0) / (2 * h)
         x[ix] = xGold
         ### END YOUR CODE
