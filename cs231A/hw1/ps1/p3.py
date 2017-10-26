@@ -18,7 +18,37 @@ def compute_vanishing_point(points):
         vanishing_point: The pixel location of the vanishing point.
     """
     # TODO: Fill in this code.
-    pass
+    # p1, p2  q1, q2
+    down = points[0][0] - points[1][0]
+    up = points[0][1] - points[1][1]
+
+    k1 = (up / np.float32(down)) if down != 0 else None
+
+    down = points[2][0] - points[3][0]
+    up = points[2][1] - points[3][1]
+
+    k2 = (up / np.float32(down)) if down != 0 else None
+
+    if k1 != None:
+        b1 = points[0][1] - k1 * points[0][0]
+
+    if k2 != None:
+        b2 = points[2][1] - k2 * points[2][0]
+
+    if k1 == None and k2 == None:
+        printf("no solution")
+    elif k1 == None and k2 != None:
+        x = points[0][0]
+        y = k2 * x + b2
+    elif k1 != None and k2 == None:
+        x = points[2][0]
+        y = k1 * x + b1
+    else:
+        x = (b2 - b1) / (k1 - k2)
+        y = k1 * x + b1
+
+    print [x, y]
+    return np.array([x, y])
 
 
 def compute_K_from_vanishing_points(vanishing_points):
@@ -30,7 +60,42 @@ def compute_K_from_vanishing_points(vanishing_points):
         K: The intrinsic camera matrix (3x3 matrix).
     """
     # TODO: Fill in this code.
-    pass
+    v1 = vanishing_points[0]
+    v2 = vanishing_points[1]
+    v3 = vanishing_points[2]
+
+    A = np.zeros((3, 4))
+    # v1 v2
+    vi = v1
+    vj = v2
+    A[0] = np.array([vi[0] * vj[0] + vi[1] * vj[1], vi[0] + vj[0], vi[1] + vj[1], 1])
+
+    vi = v1
+    vj = v3
+    A[1] = np.array([vi[0] * vj[0] + vi[1] * vj[1], vi[0] + vj[0], vi[1] + vj[1], 1])
+
+    vi = v2
+    vj = v3
+    A[2] = np.array([vi[0] * vj[0] + vi[1] * vj[1], vi[0] + vj[0], vi[1] + vj[1], 1])
+
+    # SVD
+    U, s, VT = np.linalg.svd(A)
+
+    # last column of V = last row of VT
+    w = VT[-1, :]
+    omega = np.array([
+                       [w[0], 0,    w[1]],
+                       [0   , w[0], w[2]],
+                       [w[1], w[2], w[3]]
+                    ]);
+
+    KT_inv = np.linalg.cholesky(omega)
+    K = np.linalg.inv(KT_inv.T)
+
+    K /= K[2, 2]
+    print K
+
+    return K
 
 
 def compute_angle_between_planes(vanishing_pair1, vanishing_pair2, K):
@@ -46,8 +111,24 @@ def compute_angle_between_planes(vanishing_pair1, vanishing_pair2, K):
         angle: The angle in degrees between the planes which the vanishing
             point pair comes from2.
     """
-    # TODO: Fill in this code.
-    pass
+    # a set of vanishing points on one plane
+    v1 = np.hstack((vanishing_pair1[0], 1))
+    v2 = np.hstack((vanishing_pair1[1], 1))
+
+    # another set of vanishing points on the other plane
+    v3 = np.hstack((vanishing_pair2[0], 1))
+    v4 = np.hstack((vanishing_pair2[1], 1))
+
+    # find two vanishing lines
+    L1 = np.cross(v1.T, v2.T)
+    L2 = np.cross(v3.T, v4.T)
+
+    n1 = K.T.dot(L1)
+    n2 = K.T.dot(L2)
+
+    costheta = n1.T.dot(n2) / (np.sqrt(n1.T.dot(n1)) * np.sqrt(n2.T.dot(n2)))
+
+    return np.arccos(costheta) / math.pi * 180
 
 
 def compute_rotation_matrix_between_cameras(vanishing_pts1, vanishing_pts2, K):
@@ -62,7 +143,39 @@ def compute_rotation_matrix_between_cameras(vanishing_pts1, vanishing_pts2, K):
         R: The rotation matrix between camera 1 and camera 2.
     """
     # TODO: Fill in this code.
-    pass
+    # a set of vanishing points on one image
+    v1 = np.hstack((vanishing_pts1[0], 1))
+    v2 = np.hstack((vanishing_pts1[1], 1))
+    v3 = np.hstack((vanishing_pts1[2], 1))
+
+    # another set of vanishing points on the other image
+    v4 = np.hstack((vanishing_pts2[0], 1))
+    v5 = np.hstack((vanishing_pts2[1], 1))
+    v6= np.hstack((vanishing_pts2[2], 1))
+
+    # first image vanishing points directions
+    d1 = np.linalg.inv(K).dot(v1) / np.linalg.norm(np.linalg.inv(K).dot(v1))
+    d2 = np.linalg.inv(K).dot(v2) / np.linalg.norm(np.linalg.inv(K).dot(v2))
+    d3 = np.linalg.inv(K).dot(v3) / np.linalg.norm(np.linalg.inv(K).dot(v3))
+
+    # second image vanishing points directions
+    dPrime1 = np.linalg.inv(K).dot(v4) / np.linalg.norm(np.linalg.inv(K).dot(v4))
+    dPrime2 = np.linalg.inv(K).dot(v5) / np.linalg.norm(np.linalg.inv(K).dot(v5))
+    dPrime3 = np.linalg.inv(K).dot(v6) / np.linalg.norm(np.linalg.inv(K).dot(v6))
+
+    di = np.zeros((3, 3))
+    di[:, 0] = d1.T
+    di[:, 1] = d2.T
+    di[:, 2] = d3.T
+
+    diPrime = np.zeros((3, 3))
+    diPrime[:, 0] = dPrime1.T
+    diPrime[:, 1] = dPrime2.T
+    diPrime[:, 2] = dPrime3.T
+
+    # find rotation matrix
+    R = diPrime.dot(np.linalg.inv(di))
+    return R
 
 
 if __name__ == '__main__':
