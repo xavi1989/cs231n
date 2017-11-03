@@ -19,7 +19,33 @@ Returns:
 '''
 def factorization_method(points_im1, points_im2):
     # TODO: Implement this method!
-    raise Exception('Not Implemented Error')
+    # center the data
+    center_im1 = np.mean(points_im1, axis = 0)
+    center_im2 = np.mean(points_im2, axis = 0)
+
+    points_im1_center = points_im1 - center_im1
+    points_im2_center = points_im2 - center_im2
+
+    # create measurement matrix
+    D = np.zeros((4, points_im1.shape[0]))
+
+    D[0:2, :] = points_im1_center.T[0:2, :]
+    D[2:4, :] = points_im2_center.T[0:2, :]
+
+    # svd
+    U, s, VT = np.linalg.svd(D)
+
+    motion = U[:, 0:3]
+    eigen = np.zeros((3, 3))
+    eigen[0, 0] = s[0]
+    eigen[1, 1] = s[1]
+    eigen[2, 2] = s[2]
+
+    print VT[0:3, :].shape
+    structure = eigen.dot(VT[0:3, :])
+
+    return structure, motion
+
 
 if __name__ == '__main__':
     for im_set in ['data/set1', 'data/set1_subset']:
