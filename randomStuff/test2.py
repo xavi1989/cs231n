@@ -108,16 +108,36 @@ Date2 = datetime.date(2017, 12, 17)
 
 N = len(Symbols)
 
-info1 = np.zeros((N, 4))
-info2 = np.zeros((N, 4))
+info1 = np.zeros((N, 5))
+info2 = np.zeros((N, 5))
 
 for i in range(N):
     a, b, c, d = cal_price(Symbols[i], Date1)
-    info1[i, :] = np.array([a, b, c, d])
+    e = (a - c) / (a - b)
+
+    # e = 1 increase, e = -1 decrease e = 0 flat
+    if e > 0.67:
+        e = -1
+    elif e < 0.33:
+        e = 1
+    else:
+        e = 0
+
+    info1[i, :] = np.array([a, b, c, e, d])
     info1 = np.around(info1, decimals=3)
 
     a, b, c, d = cal_price(Symbols[i], Date2)
-    info2[i, :] = np.array([a, b, c, d])
+    e = (a - c) / (a - b)
+
+    # e = 1 increase, e = -1 decrease e = 0 flat
+    if e > 0.67:
+        e = -1
+    elif e < 0.33:
+        e = 1
+    else:
+        e = 0
+
+    info2[i, :] = np.array([a, b, c, e, d])
     info2 = np.around(info2, decimals=3)
 
 sym = np.array(Symbols)
