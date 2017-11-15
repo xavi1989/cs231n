@@ -115,7 +115,7 @@ class AutoEigen():
             os.makedirs(pwd + '/data')
 
         # check if file exist
-        filename = pwd + '/data/EstimateResult.xls'
+        filename = pwd + '/data/EstimateResult.xlsx'
         writer = pd.ExcelWriter(filename, engine='openpyxl') 
         if os.path.isfile(filename):
             # load existing excel
@@ -129,8 +129,8 @@ class AutoEigen():
         writer.save()
 
 if __name__ == '__main__':
-    Symbols = ['AAPL', 'GOOG', 'NVDA', 'AMD', 'QCOM', 'TSLA', 'TWTR', 'FB', 'BIDU', 'QIWI', 'SNAP', 'YELP', 'SQ']
-    Expiries = [datetime.date(2017, 11, 17), datetime.date(2017, 12, 17)]
+    Symbols = ['AAPL', 'GOOG', 'NVDA', 'AMD', 'QCOM', 'TSLA', 'TWTR', 'FB', 'BIDU', 'QIWI', 'SNAP', 'YELP', 'SQ', 'JD', 'GPRO', 'BABA', 'MRVL', 'XLNX']
+    Expiries = [datetime.date(2017, 11, 17), datetime.date(2017, 12, 17), datetime.date(2018, 1, 18)]
 
     print ('\n\n' + '+' * 20 + 'Testing AutoEigen' + '+' * 20)
     autoEigen = AutoEigen(Symbols, Expiries)

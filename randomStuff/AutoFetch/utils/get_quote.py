@@ -3,19 +3,24 @@ import requests
 import time
 
 Table = {
-    'AAPL':'NASDAQ',
-    'GOOG':'NASDAQ',
-    'NVDA':'NASDAQ',
-    'AMD' :'NASDAQ',
-    'QCOM':'NASDAQ',
-    'TSLA':'NASDAQ',
-    'TWTR':'NASDAQ',
-    'FB'  :'NASDAQ',
-    'BIDU':'NASDAQ',
-    'QIWI':'NASDAQ',
-    'YELP':'NASDAQ',
-    'SQ'  :'NASDAQ',
-    'SNAP':'NYSE',
+    'AAPL'  :'NASDAQ',
+    'GOOG'  :'NASDAQ',
+    'NVDA'  :'NASDAQ',
+    'AMD'   :'NASDAQ',
+    'QCOM'  :'NASDAQ',
+    'TSLA'  :'NASDAQ',
+    'TWTR'  :'NASDAQ',
+    'FB'    :'NASDAQ',
+    'BIDU'  :'NASDAQ',
+    'QIWI'  :'NASDAQ',
+    'YELP'  :'NASDAQ',
+    'SQ'    :'NASDAQ',
+    'JD'    :'NASDAQ',
+    'GPRO' :'NASDAQ',
+    'MRVL'  :'NASDAQ',
+    'XLNX'  :'NASDAQ',
+    'SNAP'  :'NYSE',
+    'BABA'  :'NYSE',
 }
 
 #https://finance.google.com/finance?q=NYSE:SNAP&output=json
