@@ -52,8 +52,12 @@ class AutoStock():
 
         now = datetime.date.today()
 
+        path = pwd + '/data/' + str(now)
+        if not os.path.isdir(path):
+            os.makedirs(path)
+
         for date in self.expiry:
-            filename = 'data/' + self.symbol + ' Today_' + str(now) + '_call' + str(date) + '.csv'
+            filename = path + '/' + self.symbol + '_Today_' + str(now) + '_call' + str(date) + '.csv'
             self.dataframe_call[date].to_csv(filename, sep = '\t', encoding='utf-8')
 
 if __name__ == '__main__':

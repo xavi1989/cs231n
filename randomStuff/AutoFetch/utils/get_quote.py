@@ -1,5 +1,6 @@
 import json
 import requests
+import time
 
 Table = {
     'AAPL':'NASDAQ',
@@ -30,6 +31,9 @@ def get_quote_localimpl(Symbol):
         rsp = requests.get('https://finance.google.com/finance?q=' + EX + ':' + Symbol + '&output=json')
     except:
         return None
+
+    # sleep 2 seconds
+    time.sleep(2)
 
     if rsp.status_code in (200,):
 
