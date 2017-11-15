@@ -1,6 +1,8 @@
 import datetime
 import numpy as np
 import pandas as pd
+import os
+from openpyxl import load_workbook
 
 #local import
 import AutoStock
@@ -81,19 +83,53 @@ class AutoEigen():
                 combEst = self.estimate_result.at[i, 'combEst_' + str(j)]
 
                 interval = callEst - putEst
+                percentage = (combEst - putEst) / interval
                 trend = 'Flat'
-                if (combEst - putEst) / interval > self.up_threshold:
+                if percentage > self.up_threshold:
                     trend = 'Up'
-                if (callEst - combEst) / interval < self.down_threshold:
+                if percentage < self.down_threshold:
                     trend = 'Down'
 
                 self.estimate_result.at[i, 'Trend_' + str(j)] = trend
 
         print (self.estimate_result.head())
 
+    def save_estimate_to_csv(self):
+        pwd = os.getcwd()
+        if not os.path.isdir(pwd + '/data'):
+            os.makedirs(pwd + '/data')
+
+        now = datetime.date.today()
+
+        path = pwd + '/data/' + str(now)
+        if not os.path.isdir(path):
+            os.makedirs(path)
+
+        filename = path + '/' + 'Today_' + str(now) + '_EstimateResult.csv'
+        self.estimate_result.to_csv(filename, sep = '\t', encoding='utf-8')
+
+    def save_estimate_to_excel(self):
+        #sudo pip3 install openpyxl
+        pwd = os.getcwd()
+        if not os.path.isdir(pwd + '/data'):
+            os.makedirs(pwd + '/data')
+
+        # check if file exist
+        filename = pwd + '/data/EstimateResult.xls'
+        writer = pd.ExcelWriter(filename, engine='openpyxl') 
+        if os.path.isfile(filename):
+            # load existing excel
+            book = load_workbook(filename)
+            writer.book = book
+            writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+
+        # write new sheet with name as today's date
+        now = datetime.date.today()
+        self.estimate_result.to_excel(writer, str(now))
+        writer.save()
+
 if __name__ == '__main__':
-    #Symbols = ['AAPL', 'GOOG', 'NVDA', 'AMD', 'QCOM', 'TSLA', 'TWTR', 'FB', 'BIDU', 'QIWI', 'SNAP', 'YELP', 'SQ']
-    Symbols = ['AAPL']
+    Symbols = ['AAPL', 'GOOG', 'NVDA', 'AMD', 'QCOM', 'TSLA', 'TWTR', 'FB', 'BIDU', 'QIWI', 'SNAP', 'YELP', 'SQ']
     Expiries = [datetime.date(2017, 11, 17), datetime.date(2017, 12, 17)]
 
     print ('\n\n' + '+' * 20 + 'Testing AutoEigen' + '+' * 20)
@@ -101,4 +137,12 @@ if __name__ == '__main__':
 
     print ('\n\n' + '+' * 20 + 'Testing AutoEigen start' + '+' * 20)
     autoEigen.start()
+
+    print ('\n\n' + '+' * 20 + 'Testing AutoEigen estimateTrend' + '+' * 20)
     autoEigen.estimateTrend()
+
+    print ('\n\n' + '+' * 20 + 'Testing AutoEigen save_estimate_to_csv' + '+' * 20)
+    autoEigen.save_estimate_to_csv()
+
+    print ('\n\n' + '+' * 20 + 'Testing AutoEigen save_estimate_to_excel' + '+' * 20)
+    autoEigen.save_estimate_to_excel()

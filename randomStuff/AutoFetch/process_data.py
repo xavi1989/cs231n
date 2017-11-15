@@ -88,6 +88,8 @@ def combine_estimate(callData, putData, currentPrice,
 
     comb_price = (call_Sum + put_Sum) / (call_Num + put_Num)
 
+    comb_price = round(comb_price, 3)
+
     return call_price, put_price, comb_price
 
 if __name__ == '__main__':
