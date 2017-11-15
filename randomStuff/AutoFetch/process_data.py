@@ -88,7 +88,7 @@ def combine_estimate(callData, putData, currentPrice,
 
     comb_price = (call_Sum + put_Sum) / (call_Num + put_Num)
 
-    return comb_price
+    return call_price, put_price, comb_price
 
 if __name__ == '__main__':
     print ('\n\n' + '+' * 20 + 'Testing slice_data_frame' + '+' * 20)
@@ -120,5 +120,5 @@ if __name__ == '__main__':
     Date = datetime.date(2017, 11, 17)
     currentPrice = fin.get_stock_price(Symbol)
     data_put = fin.get_stock_put_option(Symbol, Date)
-    estimate_price = combine_estimate(data_call, data_put, currentPrice, callVol_threshold = 0.1, putVol_threshold = 0.25)
+    _, _, estimate_price = combine_estimate(data_call, data_put, currentPrice, callVol_threshold = 0.1, putVol_threshold = 0.25)
     print ("combined estimate is: " + str(estimate_price))
