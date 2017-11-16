@@ -102,7 +102,7 @@ def cal_price(Symbol, Date):
 
     return Price_call, Price_put, (totalPrice_put + totalPrice_call) / (totalVol_put + totalVol_call), cur_price
 
-Symbols = ['AAPL', 'GOOG', 'NVDA', 'AMD', 'QCOM', 'TSLA', 'TWTR', 'FB', 'BIDU', 'QIWI', 'SNAP', 'YELP', 'SQ']
+Symbols = ['AAPL', 'GOOG', 'NVDA', 'AMD', 'QCOM', 'TSLA', 'TWTR', 'FB', 'BIDU', 'QIWI', 'SNAP', 'YELP', 'SQ', 'NTES', 'GME']
 Date1 = datetime.date(2017, 11, 17)
 Date2 = datetime.date(2017, 12, 17)
 

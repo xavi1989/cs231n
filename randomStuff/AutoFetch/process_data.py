@@ -64,12 +64,14 @@ def estimate_put_data(Data, currentPrice, vol_threshold = 0.2):
     mask2 = (df['Strike'] - df['Bid']) > currentPrice
 
     mask |= mask2
+
     #strike - price
     totalMoney = np.sum((df['Strike'] - df['Bid']) * df['Open_Int'] * mask)
     totalNum = np.sum(df['Open_Int'] * mask)
     price = totalMoney / totalNum
 
     price = round(price, 3)
+
     return price, totalMoney, totalNum
 
 def combine_estimate(callData, putData, currentPrice,

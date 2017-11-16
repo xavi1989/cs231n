@@ -6,6 +6,7 @@ from openpyxl import load_workbook
 
 #local import
 import AutoStock
+import utils.stock_dataset as stockData
 
 class AutoEigen():
     '''
@@ -129,7 +130,10 @@ class AutoEigen():
         writer.save()
 
 if __name__ == '__main__':
-    Symbols = ['AAPL', 'GOOG', 'NVDA', 'AMD', 'QCOM', 'TSLA', 'TWTR', 'FB', 'BIDU', 'QIWI', 'SNAP', 'YELP', 'SQ', 'JD', 'GPRO', 'BABA', 'MRVL', 'XLNX']
+    Symbols = []
+    for k in stockData.Table:
+        Symbols += [k]
+
     Expiries = [datetime.date(2017, 11, 17), datetime.date(2017, 12, 17), datetime.date(2018, 1, 18)]
 
     print ('\n\n' + '+' * 20 + 'Testing AutoEigen' + '+' * 20)
