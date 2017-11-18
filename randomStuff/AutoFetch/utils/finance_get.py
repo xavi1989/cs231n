@@ -23,7 +23,14 @@ def get_stock_call_option(Symbol, Expiry):
         return None
 
     option = Options(Symbol, OptionBackEnd)
-    data = option.get_call_data(expiry=Expiry)
+    if option is None:
+        return
+
+    try:
+        data = option.get_call_data(expiry=Expiry)
+    except:
+        print ('Symbol=' + Symbol + 'Expiry=' + str(Expiry) + ' call data not available')
+        return None
 
     return data
     
@@ -35,7 +42,14 @@ def get_stock_put_option(Symbol, Expiry):
         return None
 
     option = Options(Symbol, OptionBackEnd)
-    data = option.get_put_data(expiry=Expiry)
+    if option is None:
+        return
+
+    try:
+        data = option.get_put_data(expiry=Expiry)
+    except:
+        print ('Symbol=' + Symbol + 'Expiry=' + str(Expiry) + ' put data not available')
+        return None
 
     return data
 

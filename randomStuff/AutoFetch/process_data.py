@@ -77,13 +77,13 @@ def estimate_put_data(Data, currentPrice, vol_threshold = 0.2):
 def combine_estimate(callData, putData, currentPrice,
                      callVol_threshold = 0.2, putVol_threshold = 0.2):
     if callData is None:
-        raise ValueError
+        return 0, 0, 0
 
     if putData is None:
-        raise ValueError
+        return 0, 0, 0
 
     if currentPrice is None:
-        raise ValueError
+        return 0, 0, 0
 
     call_price, call_Sum, call_Num = estimate_call_data(callData, currentPrice, vol_threshold = callVol_threshold)
     put_price,  put_Sum,  put_Num  = estimate_put_data( putData,  currentPrice, vol_threshold = putVol_threshold)

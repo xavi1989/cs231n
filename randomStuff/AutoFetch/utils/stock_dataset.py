@@ -23,6 +23,17 @@ Table = {
     'LSCC'  :'NASDAQ',
     'NFLX'  :'NASDAQ',
     'ATVI'  :'NASDAQ',
+    'MSFT'  :'NASDAQ',
+    'LC'    :'NASDAQ',
+    'NKE'   :'NASDAQ',
+    'PSTG'  :'NASDAQ',
+    'AMCN'  :'NASDAQ',
+    'PYPL'  :'NASDAQ',
+    'FIT'   :'NASDAQ',
+    'AMBA'  :'NASDAQ',
+    'GRMN'  :'NASDAQ',
+    'GRPN'  :'NASDAQ',
+    'INTL'  :'NASDAQ',
     'SNAP'  :'NYSE',
     'BABA'  :'NYSE',
     'VIPS'  :'NYSE',
@@ -30,5 +41,9 @@ Table = {
     'NQ'    :'NYSE',
     'SFUN'  :'NYSE',
     'VRX'   :'NYSE',
-    'QD'    :'NYSE'
+    'QD'    :'NYSE',
+    'GME'   :'NYSE',
+    'RACE'  :'NYSE',
+    'ATHM'  :'NYSE',
+    'ZTO'   :'NYSE'
 }
