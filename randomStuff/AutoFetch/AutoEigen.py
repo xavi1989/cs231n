@@ -20,7 +20,7 @@ class AutoEigen():
         Date Symbol TodayPrice OptionDate_1 callEst_1 putEst_1 combEst_1 Trend_1 ...
     '''
     def __init__(self, Symbols, Expiries,
-                       call_threshold = 0.1, put_threshold = 0.25,
+                       call_threshold = 0.25, put_threshold = 0.25,
                        up_threshold = 0.67,
                        down_threshold = 0.33):
         self.stocks = []
@@ -134,7 +134,7 @@ if __name__ == '__main__':
     for k in sorted(stockData.Table):
         Symbols += [k]
 
-    Expiries = [datetime.date(2017, 11, 24), datetime.date(2017, 12, 17), datetime.date(2018, 1, 18)]
+    Expiries = [datetime.date(2017, 11, 24), datetime.date(2017, 12, 17), datetime.date(2018, 1, 18), datetime.date(2018, 2, 18)]
 
     print ('\n\n' + '+' * 20 + 'Testing AutoEigen' + '+' * 20)
     autoEigen = AutoEigen(Symbols, Expiries)
