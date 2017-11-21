@@ -93,7 +93,7 @@ def straddle_process():
     Date = datetime.date(2017, 11, 24)
     Percentages = [0.03, 0.05, 0.1, 0.15, 0.2]
 
-    colnames = ['Symbol', 'Option_Date', 'Price_neutral', 'PercentJump', 'Option_price1', 'Percent1', 'Gain1', 'Option_price2', 'Percent2', 'Gain2']
+    colnames = ['Symbol', 'Option_Date', 'Price_neutral', 'PercentJump', 'Option_price1', 'Percent1', 'Price1', 'Gain1', 'Option_price2', 'Percent2', 'Price2', 'Gain2']
     straddle_result = pd.DataFrame(index = [i for i in range(len(Symbols) * len(Percentages))], columns = colnames, dtype = float)
     # modify Date, Symbol, OpDate Trend to be string type
     colnames = ['Option_Date']
@@ -125,9 +125,11 @@ def straddle_process():
             straddle_result.at[len(Percentages) * i + j, ['PercentJump']] = percent
             straddle_result.at[len(Percentages) * i + j, ['Option_price1']] = ret[1]
             straddle_result.at[len(Percentages) * i + j, ['Percent1']] = ret[2]
+            straddle_result.at[len(Percentages) * i + j, ['Price1']] = ret[0] * (1 + ret[2])
             straddle_result.at[len(Percentages) * i + j, ['Gain1']] = ret[3]
             straddle_result.at[len(Percentages) * i + j, ['Option_price2']] = ret[4]
             straddle_result.at[len(Percentages) * i + j, ['Percent2']] = ret[5]
+            straddle_result.at[len(Percentages) * i + j, ['Price2']] = ret[0] * (1 + ret[5])
             straddle_result.at[len(Percentages) * i + j, ['Gain2']] = ret[6]
 
     save_estimate_to_excel(straddle_result)
