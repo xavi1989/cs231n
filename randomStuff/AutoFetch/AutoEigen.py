@@ -7,6 +7,7 @@ from openpyxl import load_workbook
 #local import
 import AutoStock
 import utils.stock_dataset as stockData
+import straddle_option
 
 class AutoEigen():
     '''
@@ -150,3 +151,6 @@ if __name__ == '__main__':
 
     print ('\n\n' + '+' * 20 + 'Testing AutoEigen save_estimate_to_excel' + '+' * 20)
     autoEigen.save_estimate_to_excel()
+
+    print ('\n\n' + '+' * 20 + 'Testing straddle save_estimate_to_excel' + '+' * 20)
+    straddle_option.straddle_process()

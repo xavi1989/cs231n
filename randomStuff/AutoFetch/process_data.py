@@ -8,6 +8,8 @@ import utils.finance_get as fin
 def slice_data_frame(Data):
     if Data is None:
         raise ValueError
+    if Data.shape[0] is 0:
+        return None
 
     index = np.array(Data.index.tolist())
     N = len(index)
@@ -31,6 +33,9 @@ def estimate_call_data(Data, currentPrice, vol_threshold = 0.2):
         raise ValueError
 
     df = slice_data_frame(Data)
+
+    if df is None:
+        return 0, 0, 0
 
     volumn_threshold = vol_threshold * np.mean(df['Vol'])
 
@@ -56,6 +61,8 @@ def estimate_put_data(Data, currentPrice, vol_threshold = 0.2):
         raise ValueError
 
     df = slice_data_frame(Data)
+    if df is None:
+        return 0, 0, 0
 
     volumn_threshold = vol_threshold * np.mean(df['Vol'])
 
