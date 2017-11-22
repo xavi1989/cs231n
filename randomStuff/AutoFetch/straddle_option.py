@@ -90,7 +90,7 @@ def straddle_process():
     Symbols = []
     for k in sorted(stockData.Table):
         Symbols += [k]
-    Date = datetime.date(2017, 11, 24)
+    Date = datetime.date(2017, 12, 17)
     Percentages = [0.03, 0.05, 0.1, 0.15, 0.2]
 
     colnames = ['Symbol', 'Option_Date', 'Price_neutral', 'PercentJump', 'Option_price1', 'Percent1', 'Price1', 'Gain1', 'Option_price2', 'Percent2', 'Price2', 'Gain2']
