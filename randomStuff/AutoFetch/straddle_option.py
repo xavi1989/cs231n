@@ -110,6 +110,9 @@ def straddle_process():
         data_put = fin.get_stock_put_option(sym, Date)
         currentPrice = fin.get_stock_price(sym)
 
+        if data_call is None or data_put is None:
+            continue
+
         if data_call.shape[0] == 0 or data_put.shape[0] == 0:
             continue
 
