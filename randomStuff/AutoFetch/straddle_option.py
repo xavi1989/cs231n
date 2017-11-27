@@ -119,7 +119,7 @@ def straddle_process():
         _, _, estimate_price = process_data.combine_estimate(data_call, data_put, currentPrice, callVol_threshold = 0.25, putVol_threshold = 0.25)
 
         for j, percent in enumerate(Percentages):
-            ret = straddle_option(data_call, data_put, estimate_price, percent)
+            ret = straddle_option(data_call, data_put, currentPrice, percent)
             if ret is None:
                 ret = [0] * 7
 

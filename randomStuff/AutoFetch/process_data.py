@@ -103,32 +103,27 @@ def combine_estimate(callData, putData, currentPrice,
 
 if __name__ == '__main__':
     print ('\n\n' + '+' * 20 + 'Testing slice_data_frame' + '+' * 20)
-    Symbol = 'AAPL'
-    Date = datetime.date(2017, 11, 17)
+    Symbol = 'LC'
+    Date = datetime.date(2017, 12, 17)
     data_call = fin.get_stock_call_option(Symbol, Date)
 
+    print (data_call.iloc[0:5, 0:5])
     data = slice_data_frame(data_call)
     print (data.iloc[0:5, :])
 
     print ('\n\n' + '+' * 20 + 'Testing estimate_call_data' + '+' * 20)
-    Symbol = 'AAPL'
-    Date = datetime.date(2017, 11, 17)
     currentPrice = fin.get_stock_price(Symbol)
     data_call = fin.get_stock_call_option(Symbol, Date)
     estimate_price = estimate_call_data(data_call, currentPrice, vol_threshold = 0.1)
     print ("estimate based on call is: " + str(estimate_price))
 
     print ('\n\n' + '+' * 20 + 'Testing estimate_put_data' + '+' * 20)
-    Symbol = 'AAPL'
-    Date = datetime.date(2017, 11, 17)
     currentPrice = fin.get_stock_price(Symbol)
     data_put = fin.get_stock_put_option(Symbol, Date)
     estimate_price = estimate_put_data(data_put, currentPrice, vol_threshold = 0.25)
     print ("estimate based on put is: " + str(estimate_price))
 
     print ('\n\n' + '+' * 20 + 'Testing combine_estimate' + '+' * 20)
-    Symbol = 'AAPL'
-    Date = datetime.date(2017, 11, 17)
     currentPrice = fin.get_stock_price(Symbol)
     data_put = fin.get_stock_put_option(Symbol, Date)
     _, _, estimate_price = combine_estimate(data_call, data_put, currentPrice, callVol_threshold = 0.1, putVol_threshold = 0.25)
