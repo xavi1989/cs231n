@@ -103,8 +103,8 @@ def combine_estimate(callData, putData, currentPrice,
 
 if __name__ == '__main__':
     print ('\n\n' + '+' * 20 + 'Testing slice_data_frame' + '+' * 20)
-    Symbol = 'GPRO'
-    Date = datetime.date(2017, 12, 8)
+    Symbol = 'AMCN'
+    Date = datetime.date(2017, 12, 15)
     data_call = fin.get_stock_call_option(Symbol, Date)
 
     print (data_call.iloc[0:5, 0:5])
