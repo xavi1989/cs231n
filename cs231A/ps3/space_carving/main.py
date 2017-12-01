@@ -42,7 +42,34 @@ the location of a voxel in 3D space.
 '''
 def form_initial_voxels(xlim, ylim, zlim, num_voxels):
     # TODO: Implement this method!
-    raise Exception('Not Implemented Error')
+    x = int(xlim[1] - xlim[0] + 0.5)
+    y = int(ylim[1] - ylim[0] + 0.5)
+    z = int(zlim[1] - zlim[0] + 0.5)
+
+    vol = x * y * z
+
+    cube = vol / num_voxels
+    voxel_size = np.cbrt(cube)
+
+    xNum = int(x / voxel_size + 0.5)
+    yNum = int(y / voxel_size + 0.5)
+    zNum = int(z / voxel_size + 0.5)
+
+    N = xNum * yNum *zNum
+
+    ret = np.zeros((N, 3))
+
+    for k in range(zNum):
+        for j in range(yNum):
+            for i in range(xNum):
+                ret[k * yNum *xNum + j * xNum + i, 0] = i * voxel_size
+                ret[k * yNum *xNum + j * xNum + i, 1] = j * voxel_size
+                ret[k * yNum *xNum + j * xNum + i, 2] = k * voxel_size
+
+
+    voxels = ret
+
+    return voxels, voxel_size
 
 
 '''
