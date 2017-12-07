@@ -33,8 +33,22 @@ Returns:
 '''
 def match_keypoints(descriptors1, descriptors2, threshold = 0.7):
     # TODO: Implement this method!
-    raise Exception('Not Implemented Error')
+    matches_list = []
 
+    for i in range(descriptors1.shape[0]):
+        d1 = descriptors1[i, :]
+
+        dist = np.sqrt(np.sum((descriptors2 - d1) ** 2, axis = 1))
+
+        index_sort = np.argsort(dist, axis=None)
+
+        closest = index_sort[0]
+        second_closest = index_sort[1]
+        if (dist[closest] < threshold * dist[second_closest]):
+            matches_list.append(i)
+            matches_list.append(closest)
+
+    return np.array(matches_list).reshape(-1, 2)
 
 '''
 REFINE_MATCH: Filter out spurious matches between two images by using RANSAC
