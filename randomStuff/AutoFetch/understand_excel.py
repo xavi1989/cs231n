@@ -19,6 +19,10 @@ blueFill = PatternFill(start_color='00B2EE',
                       end_color='00B2EE',
                       fill_type='solid')
 
+greenFill = PatternFill(start_color='5B965B',
+                      end_color='5B965B',
+                      fill_type='solid')
+
 '''
     input: cell
     return: column_letter, row_index
@@ -135,7 +139,7 @@ def understand_excel(Title = None):
     fill_in_gain(sheet, ['StartPrice', 'EndPrice', 'Gain'], 'Trend_1', startDate, endDate)
 
     # highlight Up
-    hightlight_row(sheet, 'Trend_0', yellowFill, lambda x: True if x == 'Up' else False)
+    hightlight_row(sheet, 'Trend_0', greenFill, lambda x: True if x == 'Up' else False)
 
     writer.save()
 
