@@ -8,6 +8,7 @@ from openpyxl import load_workbook
 import AutoStock
 import utils.stock_dataset as stockData
 import straddle_option
+import understand_excel
 
 class AutoEigen():
     '''
@@ -154,3 +155,6 @@ if __name__ == '__main__':
 
     print ('\n\n' + '+' * 20 + 'Testing straddle save_estimate_to_excel' + '+' * 20)
     straddle_option.straddle_process()
+
+    print ('\n\n' + '+' * 20 + 'Testing understand_excel' + '+' * 20)
+    understand_excel.understand_excel()
