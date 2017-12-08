@@ -110,7 +110,7 @@ def fill_in_gain(ws, colNames, last_col_name, startDate, endDate):
         ws['%s%s' % (new_letters[2], str(index))] = data[2]
         index += 1
 
-def understand_excel(Title):
+def understand_excel(Title = None):
     pwd = os.getcwd()
     filename = pwd + '/data/EstimateResult.xlsx'
     writer = pd.ExcelWriter(filename, engine='openpyxl')
