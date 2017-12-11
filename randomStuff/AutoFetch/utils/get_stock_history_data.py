@@ -1,12 +1,44 @@
 import pandas_datareader.data as web
 import datetime
+import time
+import os
+import pandas as pd
+
+import utils.stock_dataset as stockData
 
 def get_stock_history_data(symbol, start, end):
     try:
         f = web.DataReader(symbol, 'yahoo', start, end)
+        time.sleep(5)
     except:
         return None
+
     return f
+
+def get_stocks_history_data(Symbols, start, end):
+    start = datetime.datetime(2017, 11, 15)
+    end   = datetime.date.today()
+    pwd = os.getcwd()
+    foldername = pwd + '/../data/history/'
+    if not os.path.isdir(foldername):
+        os.makedirs(foldername)
+    for symbol in Symbols:
+        f = get_stock_history_data(symbol, start, end)
+        if f is None:
+            print ('%s failed ....' % symbol)
+            continue
+        print (symbol)
+        filename = foldername + symbol + '_history.xlsx'
+        print (filename)
+        writer = pd.ExcelWriter(filename, engine='openpyxl')
+        f.to_excel(writer, 'Sheet1')
+        writer.save()
+
+def get_stock_price_from_excel(symbol, excel_name, start, end, priceType = 'Close'):
+    df = pd.read_excel(excel_name, sheetname = 'Sheet1')
+    a = 0
+    a = (df[df['Date'] == start]['Close'])
+    return a.as_matrix()
 
 '''
     find the growth so far.
@@ -39,3 +71,21 @@ if __name__ == '__main__':
 
     start, end, jump = stock_data_gain(symbol, start, end)
     print ([start, end, jump])
+
+    pwd = os.getcwd()
+    foldername = pwd + '/../data/history/'
+    excel_name = foldername + symbol + '_history.xlsx'
+    start = datetime.datetime(2017, 11, 24)
+    end   = datetime.datetime(2017, 11, 24)
+    get_stock_price_from_excel(symbol, excel_name, start, end)
+
+'''
+    Symbols = []
+    for k in sorted(stockData.Table):
+        Symbols += [k]
+
+    Symbols = ['VIPS']
+    start = datetime.datetime(2017, 11, 15)
+    end   = datetime.date.today()
+    get_stocks_history_data(Symbols, start, end);
+'''

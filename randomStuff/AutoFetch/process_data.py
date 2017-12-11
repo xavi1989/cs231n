@@ -42,7 +42,7 @@ def estimate_call_data(Data, currentPrice, vol_threshold = 0.2):
     mask = df['Vol'] > volumn_threshold
 
     #mask2: if strike + vol < current price, then even volumn is 0 is acceptable
-    mask2 = (df['Strike'] + df['Bid']) < currentPrice
+    mask2 = (df['Strike'] + df['Bid']) < currentPrice * 1.1
 
     mask |= mask2
 
@@ -68,7 +68,7 @@ def estimate_put_data(Data, currentPrice, vol_threshold = 0.2):
 
     mask = df['Vol'] > volumn_threshold
     #mask2: if strike - vol > current price, then even volumn is 0 is acceptable
-    mask2 = (df['Strike'] - df['Bid']) > currentPrice
+    mask2 = (df['Strike'] - df['Bid']) > currentPrice * 0.9
 
     mask |= mask2
 
