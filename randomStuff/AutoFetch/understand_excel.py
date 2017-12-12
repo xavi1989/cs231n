@@ -98,6 +98,25 @@ def add_new_columns(ws, colNames, last_col_name):
 
     return new_column_letters
 
+def fill_initial_process(ws, colNames, last_col_name):
+    new_letters = add_new_columns(ws, colNames, last_col_name)
+    symbol_index = 2
+    p_index = 3
+    call_index = 5
+    put_index = 6
+    comb_index = 7
+    index = 2
+    for row in ws.iter_rows(min_row=2):
+        symbol = row[symbol_index].value
+        print ('Processing symbol: %s initial_processing' % symbol)
+        gain1 = (row[comb_index].value - row[p_index].value) / row[p_index].value
+        gain2 = (row[call_index].value - row[p_index].value) / row[p_index].value
+        up_rate = np.cbrt(np.abs((row[p_index].value - row[put_index].value) / (row[call_index].value - row[put_index].value)) - 0.5) * 0.5 + 0.5
+        ws['%s%s' % (new_letters[0], str(index))] = gain1
+        ws['%s%s' % (new_letters[1], str(index))] = gain2
+        ws['%s%s' % (new_letters[2], str(index))] = up_rate
+        index += 1
+
 def fill_in_gain(ws, colNames, last_col_name, startDate, endDate):
     new_letters = add_new_columns(ws, colNames, last_col_name)
     symbol_index = 2
@@ -134,9 +153,11 @@ def understand_excel(Title = None):
     if sheet is None:
         print("Cannot find the right sheet")
 
+    fill_initial_process(sheet, ['gain1', 'gain2', 'up-rate'], 'Trend_1')
+
     startDate = str(datetime.date(2017, 11, 27))
     endDate = str(datetime.date.today())
-    fill_in_gain(sheet, ['StartPrice', 'EndPrice', 'Gain'], 'Trend_1', startDate, endDate)
+    fill_in_gain(sheet, ['StartPrice', 'EndPrice', 'Gain'], 'up-rate', startDate, endDate)
 
     # highlight Up
     hightlight_row(sheet, 'Trend_0', greenFill, lambda x: True if x == 'Up' else False)
