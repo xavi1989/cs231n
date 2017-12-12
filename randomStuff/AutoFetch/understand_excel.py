@@ -76,6 +76,39 @@ def hightlight_row(ws, colName, colorFill, fun):
             # color the row
             highlight(ws, str(row), ':', colorFill)
 
+def hightlight_signalchange(book, sheetTitle, colName):
+    sheet = None
+    prev1Sheet = None
+    prev2Sheet = None
+
+    for ws in book.worksheets:
+        prev2Sheet = prev1Sheet
+        prev1Sheet = sheet
+        sheet = ws
+
+        if ws.title == sheetTitle:
+            sheet = ws
+            break
+
+    # find col letter with colName
+    col_letter = ""
+    for cell in sheet['1:1']:
+        if cell.value == colName:
+            col_letter, _ = get_cell_coordinate(cell)
+
+    index = col_letter + ':' + col_letter
+    # loop over the column
+    for cell in sheet[index]:
+        value1 = cell.value
+        col, row = get_cell_coordinate(cell)
+        value0 = prev2Sheet[col+str(row)].value
+
+        if value1 == 'Up' and value0 == 'Flat':
+            cell.fill = yellowFill
+
+        if value1 == 'Flat' and value0 == 'Up':
+            cell.fill = blueFill
+
 def add_new_columns(ws, colNames, last_col_name):
     # add startPrice endPrice and Gain
     row = ws['1:1']
@@ -161,6 +194,8 @@ def understand_excel(Title = None):
 
     # highlight Up
     hightlight_row(sheet, 'Trend_0', greenFill, lambda x: True if x == 'Up' else False)
+    # hightlight signal change
+    hightlight_signalchange(book, sheetTitle, 'Trend_0')
 
     writer.save()
 
