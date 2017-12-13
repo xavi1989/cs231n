@@ -22,6 +22,9 @@ blueFill = PatternFill(start_color='00B2EE',
 greenFill = PatternFill(start_color='5B965B',
                       end_color='5B965B',
                       fill_type='solid')
+defaultFill = PatternFill(fill_type=None,
+                   start_color='FFFFFFFF',
+                   end_color='FF000000')
 
 '''
     input: cell
@@ -53,7 +56,6 @@ def highlight(ws, row, col, colorFill):
         index = col + row
 
     index = index + ':' + index
-
     for cell in ws[index]:
         cell.fill = colorFill
 
@@ -75,11 +77,19 @@ def hightlight_row(ws, colName, colorFill, fun):
             col, row = get_cell_coordinate(cell)
             # color the row
             highlight(ws, str(row), ':', colorFill)
+        else:
+            #get the row
+            col, row = get_cell_coordinate(cell)
+            # color the row
+            highlight(ws, str(row), ':', defaultFill)
+            
 
 def hightlight_signalchange(book, sheetTitle, colName):
     sheet = None
     prev1Sheet = None
     prev2Sheet = None
+    symbol_index = 3
+    symbol_letter = get_column_letter(symbol_index)
 
     for ws in book.worksheets:
         prev2Sheet = prev1Sheet
@@ -101,7 +111,18 @@ def hightlight_signalchange(book, sheetTitle, colName):
     for cell in sheet[index]:
         value1 = cell.value
         col, row = get_cell_coordinate(cell)
-        value0 = prev2Sheet[col+str(row)].value
+        symbol1 = sheet[symbol_letter+str(row)].value
+
+        #loop over prev2Sheet and find cell value
+        value0 = ''
+        for cell0 in prev2Sheet[symbol_letter + ':' + symbol_letter]:
+            if cell0.value == symbol1:
+                # find it
+                col, row = get_cell_coordinate(cell0)
+                value0 = prev2Sheet[col_letter+str(row)].value
+
+        if value0 == '':
+            continue
 
         if value1 == 'Up' and value0 == 'Flat':
             cell.fill = yellowFill

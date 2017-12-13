@@ -58,6 +58,9 @@ class AutoStock():
 
         for date in self.expiry:
             filename = path + '/' + self.symbol + '_Today_' + str(now) + '_call' + str(date) + '.csv'
+            if self.dataframe_call[date] is None:
+                print (filename + " not available.")
+                continue
             self.dataframe_call[date].to_csv(filename, sep = '\t', encoding='utf-8')
 
 if __name__ == '__main__':

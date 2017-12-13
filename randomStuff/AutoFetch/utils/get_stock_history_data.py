@@ -9,7 +9,7 @@ import utils.stock_dataset as stockData
 def get_stock_history_data(symbol, start, end):
     try:
         f = web.DataReader(symbol, 'yahoo', start, end)
-        time.sleep(5)
+        time.sleep(2)
     except:
         return None
 
