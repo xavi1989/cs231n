@@ -163,9 +163,15 @@ def fill_initial_process(ws, colNames, last_col_name):
     for row in ws.iter_rows(min_row=2):
         symbol = row[symbol_index].value
         print ('Processing symbol: %s initial_processing' % symbol)
-        gain1 = (row[comb_index].value - row[p_index].value) / row[p_index].value
-        gain2 = (row[call_index].value - row[p_index].value) / row[p_index].value
-        up_rate = np.cbrt(np.abs((row[p_index].value - row[put_index].value) / (row[call_index].value - row[put_index].value)) - 0.5) * 0.5 + 0.5
+        try:
+            gain1 = (row[comb_index].value - row[p_index].value) / row[p_index].value
+            gain2 = (row[call_index].value - row[p_index].value) / row[p_index].value
+            up_rate = np.cbrt(np.abs((row[p_index].value - row[put_index].value) / (row[call_index].value - row[put_index].value)) - 0.5) * 0.5 + 0.5
+        except:
+            print ("error of processing %s in initial processing" % symbol)
+            gain1 = 0
+            gain2 = 0
+            up_rate = 0
         ws['%s%s' % (new_letters[0], str(index))] = gain1
         ws['%s%s' % (new_letters[1], str(index))] = gain2
         ws['%s%s' % (new_letters[2], str(index))] = up_rate
