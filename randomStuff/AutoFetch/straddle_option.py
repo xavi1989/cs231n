@@ -109,7 +109,10 @@ def straddle_process():
 
         data_call = fin.get_stock_call_option(sym, Date)
         data_put = fin.get_stock_put_option(sym, Date)
-        currentPrice = fin.get_stock_price(sym)
+        info = fin.get_stock_price(sym)
+        currentPrice = 0
+        if info is not None:
+            currentPrice = info['p'] 
 
         if data_call is None or data_put is None:
             continue

@@ -32,7 +32,11 @@ class AutoStock():
             self.dataframe_put[date]  = fin.get_stock_put_option(self.symbol, date)
 
     def estimate_process(self):
-        self.current_price = fin.get_stock_price(self.symbol)
+        info = fin.get_stock_price(self.symbol)
+        if info is None:
+            self.current_price = 0
+        else:
+            self.current_price = info['p']
 
         for date in self.expiry:
             self.estimate_price[date] = process_data.combine_estimate(

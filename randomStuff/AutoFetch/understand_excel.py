@@ -7,6 +7,7 @@ from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Fo
 from openpyxl.utils import coordinate_from_string, column_index_from_string, get_column_letter
 
 from utils.get_stock_history_data import stock_data_gain
+from utils.finance_get import get_stock_price
 import global_variable as global_var
 
 redFill = PatternFill(start_color='EE6363',
@@ -192,9 +193,14 @@ def fill_in_gain(ws, colNames, last_col_name, startDate, endDate):
         symbol = row[symbol_index].value
         print ('Processing symbol: %s' % symbol)
         data = stock_data_gain(symbol, startDate, endDate)
-        ws['%s%s' % (new_letters[0], str(index))] = data[0]
-        ws['%s%s' % (new_letters[1], str(index))] = data[1]
-        ws['%s%s' % (new_letters[2], str(index))] = data[2]
+        info = get_stock_price(symbol)
+        cp = 0
+        if info is not None:
+            cp = info['cp']
+        ws['%s%s' % (new_letters[0], str(index))] = cp
+        ws['%s%s' % (new_letters[1], str(index))] = data[0]
+        ws['%s%s' % (new_letters[2], str(index))] = data[1]
+        ws['%s%s' % (new_letters[3], str(index))] = data[2]
         index += 1
 
 def understand_excel(Title = None):
@@ -221,7 +227,7 @@ def understand_excel(Title = None):
 
     startDate = str(global_var.OptionStartDate)
     endDate = str(datetime.date.today())
-    fill_in_gain(sheet, ['StartPrice', 'EndPrice', 'Gain'], 'up-rate', startDate, endDate)
+    fill_in_gain(sheet, ['TodayCP', 'StartPrice', 'EndPrice', 'Gain'], 'up-rate', startDate, endDate)
 
     # highlight Up
     hightlight_row(sheet, 'Trend_0', greenFill, lambda x: True if x == 'Up' else False)

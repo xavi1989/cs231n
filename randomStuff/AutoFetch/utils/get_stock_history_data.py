@@ -4,7 +4,9 @@ import time
 import os
 import pandas as pd
 
-import utils.stock_dataset as stockData
+import stock_dataset as stockData
+
+#https://finance.google.com/finance/historical?q=NYSE:AAPL&startdate=2017-11-10&enddate=2017-12-15&output=csv
 
 def get_stock_history_data(symbol, start, end):
     try:
@@ -14,6 +16,15 @@ def get_stock_history_data(symbol, start, end):
         return None
 
     return f
+
+def get_stock_history_data2(symbol, start, end):
+    try:
+        rsp = requests.get('https://finance.google.com/finance/historical?q=%s:%s&startdate=%s&enddate=%s&output=csv' % (EX, Symbol, str(start), str(end)))
+    except:
+        return None
+
+    print (rsp)
+    return None
 
 def get_stocks_history_data(Symbols, start, end):
     start = datetime.datetime(2017, 11, 15)
@@ -67,7 +78,7 @@ if __name__ == '__main__':
     start = datetime.datetime(2017, 11, 27)
     end   = datetime.date.today()
 
-    f = get_stock_history_data(symbol, start, end)
+    f = get_stock_history_data2(symbol, start, end)
 
     start, end, jump = stock_data_gain(symbol, start, end)
     print ([start, end, jump])

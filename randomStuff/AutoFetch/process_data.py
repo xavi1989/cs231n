@@ -112,19 +112,19 @@ if __name__ == '__main__':
     print (data.iloc[0:5, :])
 
     print ('\n\n' + '+' * 20 + 'Testing estimate_call_data' + '+' * 20)
-    currentPrice = fin.get_stock_price(Symbol)
+    currentPrice = fin.get_stock_price(Symbol)['p']
     data_call = fin.get_stock_call_option(Symbol, Date)
     estimate_price = estimate_call_data(data_call, currentPrice, vol_threshold = 0.1)
     print ("estimate based on call is: " + str(estimate_price))
 
     print ('\n\n' + '+' * 20 + 'Testing estimate_put_data' + '+' * 20)
-    currentPrice = fin.get_stock_price(Symbol)
+    currentPrice = fin.get_stock_price(Symbol)['p']
     data_put = fin.get_stock_put_option(Symbol, Date)
     estimate_price = estimate_put_data(data_put, currentPrice, vol_threshold = 0.25)
     print ("estimate based on put is: " + str(estimate_price))
 
     print ('\n\n' + '+' * 20 + 'Testing combine_estimate' + '+' * 20)
-    currentPrice = fin.get_stock_price(Symbol)
+    currentPrice = fin.get_stock_price(Symbol)['p']
     data_put = fin.get_stock_put_option(Symbol, Date)
     _, _, estimate_price = combine_estimate(data_call, data_put, currentPrice, callVol_threshold = 0.1, putVol_threshold = 0.25)
     print ("combined estimate is: " + str(estimate_price))

@@ -11,7 +11,7 @@ def get_stock_price(Symbol):
     if Symbol == None:
         return    
 
-    info = gq.get_quote_localimpl(Symbol)
+    info = gq.get_quote_localimpl2(Symbol)
 
     return info
 
