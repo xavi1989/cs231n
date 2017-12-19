@@ -4,7 +4,7 @@ import time
 
 import utils.stock_dataset as stockData
 
-#https://finance.google.com/finance?q=NYSE:SNAP&output=json
+#https://finance.google.com/finance?q=NASDAQ:AAPL&output=json
 
 def get_quote_localimpl(Symbol):
     Table = stockData.Table
@@ -91,7 +91,7 @@ def get_quote_localimpl2(Symbol):
         info = {}
         info['op'] = fin_data['op']
         info['c'] = fin_data['c']
-        info['p'] = float(fin_data['op'].replace(',', '')) - float(fin_data['c'].replace(',', ''))
+        info['p'] = float(fin_data['l'].replace(',', ''))
         info['cp'] = fin_data['cp']
         info['hi'] = fin_data['hi']
         info['lo'] = fin_data['lo']
