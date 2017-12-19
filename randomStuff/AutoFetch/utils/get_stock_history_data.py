@@ -3,10 +3,28 @@ import datetime
 import time
 import os
 import pandas as pd
+import urllib.request
+import pandas as pd
 
-import stock_dataset as stockData
+import sys
+if sys.version_info[0] < 3: 
+    from StringIO import StringIO
+else:
+    from io import StringIO
+
+import utils.stock_dataset as stockData
 
 #https://finance.google.com/finance/historical?q=NYSE:AAPL&startdate=2017-11-10&enddate=2017-12-15&output=csv
+#'https://finance.google.com/finance/historical?q=%s:%s&startdate=%s&enddate=%s&output=csv' % (EX, Symbol, str(start), str(end))
+
+dateTable = {
+    'Nov' : 11,
+    'Dec' : 12}
+
+def convertDate(row):
+    time = row.split('-')
+    date = datetime.date(int('20' + time[2]), dateTable[time[1]], int(time[0]))
+    return (str(date))
 
 def get_stock_history_data(symbol, start, end):
     try:
@@ -18,13 +36,28 @@ def get_stock_history_data(symbol, start, end):
     return f
 
 def get_stock_history_data2(symbol, start, end):
+    Table = stockData.Table
+    EX = ''
+    if symbol in Table:
+        EX = Table[symbol]
+    else:
+        print ("cannot find Exchange for the Symbol " + symbol)
+        return None
+
     try:
-        rsp = requests.get('https://finance.google.com/finance/historical?q=%s:%s&startdate=%s&enddate=%s&output=csv' % (EX, Symbol, str(start), str(end)))
+        link = 'https://finance.google.com/finance/historical?q=%s:%s&startdate=%s&enddate=%s&output=csv'%(EX, symbol, str(start), str(end))
+        rsp = urllib.request.urlopen(link)
     except:
         return None
 
-    print (rsp)
-    return None
+    data = rsp.read()
+    text = data.decode('utf-8')
+    text_io=StringIO(text)
+
+    info = pd.read_csv(text_io, sep=',')
+    info.loc[:, 'Date'] = info.loc[:, 'Date'].apply(convertDate)
+
+    return info
 
 def get_stocks_history_data(Symbols, start, end):
     start = datetime.datetime(2017, 11, 15)
@@ -34,15 +67,15 @@ def get_stocks_history_data(Symbols, start, end):
     if not os.path.isdir(foldername):
         os.makedirs(foldername)
     for symbol in Symbols:
-        f = get_stock_history_data(symbol, start, end)
-        if f is None:
+        info = get_stock_history_data2(symbol, start, end)
+        if info is None:
             print ('%s failed ....' % symbol)
             continue
         print (symbol)
         filename = foldername + symbol + '_history.xlsx'
         print (filename)
         writer = pd.ExcelWriter(filename, engine='openpyxl')
-        f.to_excel(writer, 'Sheet1')
+        info.to_excel(writer, 'Sheet1')
         writer.save()
 
 def get_stock_price_from_excel(symbol, excel_name, start, end, priceType = 'Close'):
@@ -59,15 +92,15 @@ def get_stock_price_from_excel(symbol, excel_name, start, end, priceType = 'Clos
 '''
 def stock_data_gain(symbol, start, end):
     # get stock price
-    f = get_stock_history_data(symbol, start, end)
+    info = get_stock_history_data2(symbol, start, end)
 
-    if f is None:
+    if info is None:
         return 0, 0, 0
 
     # process
-    price = f.iloc[:, 3]
-    start = min(price[0:2]) if len(price) > 2 else min(price)
-    end = price[-1]
+    price = info.loc[:, 'Close']
+    start = min(price[-3:]) if len(price) > 2 else min(price)
+    end = price[0]
 
     jump = round((end - start) / start, 2)
 
@@ -75,7 +108,7 @@ def stock_data_gain(symbol, start, end):
 
 if __name__ == '__main__':
     symbol ='AAPL'
-    start = datetime.datetime(2017, 11, 27)
+    start = datetime.date(2017, 11, 27)
     end   = datetime.date.today()
 
     f = get_stock_history_data2(symbol, start, end)

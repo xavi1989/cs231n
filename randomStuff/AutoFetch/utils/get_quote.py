@@ -13,7 +13,7 @@ def get_quote_localimpl(Symbol):
         EX = Table[Symbol]
     else:
         print ("cannot find Exchange for the Symbol " + Symbol)
-        return None;
+        return None
 
     try:
         rsp = requests.get('https://finance.google.com/finance?q=' + EX + ':' + Symbol + '&output=json')
