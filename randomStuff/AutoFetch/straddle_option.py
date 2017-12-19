@@ -8,6 +8,7 @@ import os
 import utils.finance_get as fin
 import process_data as process_data
 import utils.stock_dataset as stockData
+import global_variable as global_var
 
 def get_option_index(data, price):
     index_array = np.array(data.index.values)
@@ -72,7 +73,7 @@ def save_estimate_to_excel(dataframe):
         os.makedirs(pwd + '/data')
 
     # check if file exist
-    filename = pwd + '/data/EstimateResult.xlsx'
+    filename = pwd + '/data/' + global_var.EstimateResultFileName_xlsx
     writer = pd.ExcelWriter(filename, engine='openpyxl') 
     if os.path.isfile(filename):
         # load existing excel
@@ -90,7 +91,7 @@ def straddle_process():
     Symbols = []
     for k in sorted(stockData.Table):
         Symbols += [k]
-    Date = datetime.date(2017, 12, 15)
+    Date = global_var.Expiries[0]
     Percentages = [0.03, 0.05, 0.1, 0.15, 0.2]
 
     colnames = ['Symbol', 'Option_Date', 'Price_neutral', 'PercentJump', 'Option_price1', 'Percent1', 'Price1', 'Gain1', 'Option_price2', 'Percent2', 'Price2', 'Gain2']

@@ -9,6 +9,7 @@ import AutoStock
 import utils.stock_dataset as stockData
 import straddle_option
 import understand_excel
+import global_variable as global_var
 
 class AutoEigen():
     '''
@@ -118,7 +119,7 @@ class AutoEigen():
             os.makedirs(pwd + '/data')
 
         # check if file exist
-        filename = pwd + '/data/EstimateResult.xlsx'
+        filename = pwd + '/data/' + global_var.EstimateResultFileName_xlsx
         writer = pd.ExcelWriter(filename, engine='openpyxl') 
         if os.path.isfile(filename):
             # load existing excel
@@ -136,7 +137,7 @@ if __name__ == '__main__':
     for k in sorted(stockData.Table):
         Symbols += [k]
 
-    Expiries = [datetime.date(2017, 12, 15), datetime.date(2018, 1, 19)]
+    Expiries = global_var.Expiries
 
     print ('\n\n' + '+' * 20 + 'Testing AutoEigen' + '+' * 20)
     autoEigen = AutoEigen(Symbols, Expiries)

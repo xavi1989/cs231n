@@ -7,6 +7,7 @@ from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Fo
 from openpyxl.utils import coordinate_from_string, column_index_from_string, get_column_letter
 
 from utils.get_stock_history_data import stock_data_gain
+import global_variable as global_var
 
 redFill = PatternFill(start_color='EE6363',
                       end_color='EE6363',
@@ -99,6 +100,9 @@ def hightlight_signalchange(book, sheetTitle, colName):
         if ws.title == sheetTitle:
             sheet = ws
             break
+
+    if prev2Sheet is None:
+        return
 
     # find col letter with colName
     col_letter = ""
@@ -195,7 +199,7 @@ def fill_in_gain(ws, colNames, last_col_name, startDate, endDate):
 
 def understand_excel(Title = None):
     pwd = os.getcwd()
-    filename = pwd + '/data/EstimateResult.xlsx'
+    filename = pwd + '/data/' + global_var.EstimateResultFileName_xlsx
     writer = pd.ExcelWriter(filename, engine='openpyxl')
     if os.path.isfile(filename):
         # load existing excel
@@ -215,7 +219,7 @@ def understand_excel(Title = None):
 
     fill_initial_process(sheet, ['gain1', 'gain2', 'up-rate'], 'Trend_1')
 
-    startDate = str(datetime.date(2017, 11, 27))
+    startDate = str(global_var.OptionStartDate)
     endDate = str(datetime.date.today())
     fill_in_gain(sheet, ['StartPrice', 'EndPrice', 'Gain'], 'up-rate', startDate, endDate)
 
@@ -229,7 +233,7 @@ def understand_excel(Title = None):
 if __name__ == '__main__':
     #load excel
     pwd = os.getcwd()
-    filename = pwd + '/data/EstimateResult.xlsx'
+    filename = pwd + '/data/' + global_var.EstimateResultFileName_xlsx
     writer = pd.ExcelWriter(filename, engine='openpyxl')
 
     if os.path.isfile(filename):
