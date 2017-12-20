@@ -7,7 +7,7 @@ from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Fo
 from openpyxl.utils import coordinate_from_string, column_index_from_string, get_column_letter
 import matplotlib.pyplot as plt
 
-from utils.get_stock_history_data import stock_data_gain, get_stock_price_from_excel
+from utils.get_stock_history_data import stock_data_gain, get_stock_price_from_excel, get_stock_history_data2
 
 def get_cell_coordinate(cell):
     xy = coordinate_from_string(cell.coordinate)
@@ -68,9 +68,9 @@ if __name__ == '__main__':
         writer.book = book
         writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
 
-    sheetDate = datetime.date(2017, 11, 20)
-    targetDate = datetime.date(2017, 11, 24)
-    sheetTitle = str(sheetDate)
+    startDate = datetime.date(2017, 11, 20)
+    targetDate = datetime.date(2017, 12, 15)
+    sheetTitle = str(startDate)
 
     #find the sheet with title sheetTitle
     sheet = writer.book.get_sheet_by_name(sheetTitle)
@@ -79,25 +79,49 @@ if __name__ == '__main__':
 
     colNames = ['callEst_0', 'putEst_0', 'combEst_0']
     symbols, data = get_data_from_excel(sheet, colNames)
-    prices = []
-    price_of_day = []
+    prices = np.zeros((len(symbols), 2))
 
     pwd = os.getcwd()
     foldername = pwd + '/data/history/'
-    for symbol in symbols:
-        start = targetDate
+    for i, symbol in enumerate(symbols):
+        start = startDate
         end = targetDate
         excel_name = foldername + symbol + '_history.xlsx'
-        f = get_stock_price_from_excel(symbol, excel_name, start, end, priceType = 'Close')
-        #print ('%s %s' % (symbol, f))
-        prices.append(f)
+        info = get_stock_history_data2(symbol, start, end)
+        p = 0
+        if info is not None:
+            prices[i, 0] = info['Close'].as_matrix()[-1]
+            prices[i, 1] = info['Close'].as_matrix()[0]
 
-        start = end = sheetDate
-        f = get_stock_price_from_excel(symbol, excel_name, start, end, priceType = 'Close')
-        #print ('%s %s' % (symbol, f))
-        price_of_day.append(f)
+    symbols = np.array(symbols)
+    data = np.hstack((symbols.reshape((-1, 1)), data, prices))
 
-    prices = np.array(prices)
+    judge = []
+    for i in range(len(symbols)):
+        callEst = float(data[i, 1].replace(',', ''))
+        putEst = float(data[i, 2].replace(',', ''))
+        tmp = 'mid'
+        endPrice = float(data[i, 5].replace(',', ''))
+        if endPrice > callEst * 0.99:
+            tmp = 'up'
+        elif endPrice < putEst * 1.01:
+            tmp = 'dw'
+        judge.append(tmp)
+
+    judge = np.array(judge)
+    data = np.hstack((data, judge.reshape((-1, 1))))
+
+    midNum = np.sum(data[:, 6] == 'mid')
+
+    names = ['symbol', 'callEst', 'putEst', 'combEst', '11-20Price', '12-15Price', 'Direction']
+    df = pd.DataFrame(data, columns=names)
+    df.to_csv('data/option-11-20To12-15.csv', index=True, header=True, sep=' ')
+
+    print (data)
+    print (1 - midNum / len(symbols))
+
+'''
+    
     price_of_day = np.array(price_of_day)
 
     Y = np.divide(data[:, 2].reshape((-1, 1)), prices) - 1
@@ -115,6 +139,7 @@ if __name__ == '__main__':
     gain = ((data[:, 2].reshape((-1, 1)) - prices) / prices)
     print (symbols)
     print (gain.reshape((1, -1)))
+'''
 
 '''
     plt.plot(X, Y, 'ro')
