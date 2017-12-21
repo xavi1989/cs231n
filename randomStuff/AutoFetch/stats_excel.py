@@ -6,8 +6,27 @@ from openpyxl import load_workbook
 from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font
 from openpyxl.utils import coordinate_from_string, column_index_from_string, get_column_letter
 import matplotlib.pyplot as plt
+import sys, getopt
 
 from utils.get_stock_history_data import stock_data_gain, get_stock_price_from_excel, get_stock_history_data2
+
+def parseArg(argv):
+   startIndex = 0
+   try:
+      opts, args = getopt.getopt(argv,"hs:")
+   except getopt.GetoptError:
+      print ('test.py -s <startIndex>')
+      sys.exit(2)
+   for opt, arg in opts:
+      if opt == '-h':
+         print ('test.py -s <startIndex>')
+         sys.exit()
+      elif opt == '-s':
+         startIndex = int(arg)
+
+   print ('start index is %s' % startIndex)
+
+   return startIndex
 
 def get_cell_coordinate(cell):
     xy = coordinate_from_string(cell.coordinate)
@@ -79,10 +98,13 @@ if __name__ == '__main__':
 
     colNames = ['callEst_0', 'putEst_0', 'combEst_0']
     symbols, data = get_data_from_excel(sheet, colNames)
-    prices = np.zeros((len(symbols), 2))
+    prices = np.zeros((len(symbols), 3))
 
     pwd = os.getcwd()
     foldername = pwd + '/data/history/'
+
+    startIndex = parseArg(sys.argv[1:])
+
     for i, symbol in enumerate(symbols):
         start = startDate
         end = targetDate
@@ -90,8 +112,10 @@ if __name__ == '__main__':
         info = get_stock_history_data2(symbol, start, end)
         p = 0
         if info is not None:
-            prices[i, 0] = info['Close'].as_matrix()[-1]
-            prices[i, 1] = info['Close'].as_matrix()[0]
+            p_array = info['Close'].as_matrix()
+            prices[i, 0] = p_array[-1]
+            prices[i, 1] = p_array[0]
+            prices[i, 2] = (p_array[startIndex] - p_array[-1]) / p_array[-1]
 
     symbols = np.array(symbols)
     data = np.hstack((symbols.reshape((-1, 1)), data, prices))
@@ -100,25 +124,28 @@ if __name__ == '__main__':
     for i in range(len(symbols)):
         callEst = float(data[i, 1].replace(',', ''))
         putEst = float(data[i, 2].replace(',', ''))
-        tmp = 'mid'
         endPrice = float(data[i, 5].replace(',', ''))
+        startPrice = float(data[i, 4].replace(',', ''))
+        tmp = 'up' if endPrice > startPrice * 1.03 else 'dw'
+        '''
         if endPrice > callEst * 0.99:
             tmp = 'up'
         elif endPrice < putEst * 1.01:
             tmp = 'dw'
+        '''
         judge.append(tmp)
 
     judge = np.array(judge)
     data = np.hstack((data, judge.reshape((-1, 1))))
 
-    midNum = np.sum(data[:, 6] == 'mid')
+    midNum = np.sum(data[:, 7] == 'mid')
 
-    names = ['symbol', 'callEst', 'putEst', 'combEst', '11-20Price', '12-15Price', 'Direction']
+    names = ['symbol', 'callEst', 'putEst', 'combEst', '11-20Price', '12-15Price', 'First5DayCP', 'Direction']
     df = pd.DataFrame(data, columns=names)
     df.to_csv('data/option-11-20To12-15.csv', index=True, header=True, sep=' ')
 
-    print (data)
-    print (1 - midNum / len(symbols))
+    #print (data)
+    #print (1 - midNum / len(symbols))
 
 '''
     
