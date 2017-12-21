@@ -13,6 +13,7 @@ else:
     from io import StringIO
 
 import utils.stock_dataset as stockData
+from utils.finance_get import get_stock_price
 
 #https://finance.google.com/finance/historical?q=NYSE:AAPL&startdate=2017-11-10&enddate=2017-12-15&output=csv
 #'https://finance.google.com/finance/historical?q=%s:%s&startdate=%s&enddate=%s&output=csv' % (EX, Symbol, str(start), str(end))
@@ -111,7 +112,10 @@ def stock_data_gain(symbol, start, end):
     # process
     price = info.loc[:, 'Close']
     start = min(price[-3:]) if len(price) > 2 else min(price)
-    end = price[0]
+    info = get_stock_price(symbol)
+    end = 0
+    if info is not None:
+        end = info['p']
 
     jump = round((end - start) / start, 2)
 
