@@ -42,6 +42,8 @@ Table = {
     'KMK'   :'NASDAQ',
     'ZNGA'  :'NASDAQ',
     'LOGI'  :'NASDAQ',
+    'XNET'  :'NASDAQ',
+    'JRJC'  :'NASDAQ',
     'M'     :'NYSE',
     'BBY'   :'NYSE',
     'APRN'  :'NYSE',
