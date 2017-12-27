@@ -110,6 +110,31 @@ if __name__ == '__main__':
     rate = np.sum(y1 == y2) / len(y1)
     print (rate)
 
+    print (df[0:5, :])
+
+    rate1 = np.clip((df[:, 4] - df[:, 3]) / (df[:, 2] - df[:, 3]), 0, 1)
+    rate2 = np.clip((df[:, 5] - df[:, 3]) / (df[:, 2] - df[:, 3]), 0, 1)
+
+    rate = np.vstack([rate1, rate2, df[:, 8].reshape((1, -1))])
+    print (rate[:, 0:5])
+
+    index_up = rate[2, :] == 'up'
+    index_mid = rate[2, :] == 'mid'
+    index_dw = rate[2, :] == 'dw'
+
+    data_up = rate[:, index_up]
+    data_mid = rate[:, index_mid]
+    data_dw = rate[:, index_dw]
+
+    x = np.arange(0, 1.2, 0.01)
+    plt.axis([0, 1.2, 0, 1.2])
+    plt.plot(x, [0.5] * len(x), 'b--')
+    plt.plot([0.5] * len(x), x, 'b--')
+    plt.plot(data_up[0, :], data_up[1, :], 'go')
+    plt.plot(data_dw[0, :], data_dw[1, :], 'rx')
+    plt.show()
+
+    '''
     # ML
     y = df[:, 8]
     classnames, y = np.unique(y, return_inverse=True)
@@ -140,6 +165,7 @@ if __name__ == '__main__':
     
     table = confusion_matrix(y_test, y_test_pred)
     print (table)
+    '''
 
     '''
     classnames, y = np.unique(Y, return_inverse=True)

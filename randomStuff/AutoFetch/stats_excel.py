@@ -126,13 +126,14 @@ if __name__ == '__main__':
         putEst = float(data[i, 2].replace(',', ''))
         endPrice = float(data[i, 5].replace(',', ''))
         startPrice = float(data[i, 4].replace(',', ''))
-        tmp = 'up' if endPrice > startPrice * 1.03 else 'dw'
-        '''
+        tmp = 'mid'
+        #tmp = 'up' if endPrice > startPrice * 1.03 else 'dw'
+        
         if endPrice > callEst * 0.99:
             tmp = 'up'
         elif endPrice < putEst * 1.01:
             tmp = 'dw'
-        '''
+        
         judge.append(tmp)
 
     judge = np.array(judge)
