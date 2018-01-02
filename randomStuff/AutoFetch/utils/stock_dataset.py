@@ -44,6 +44,7 @@ Table = {
     'LOGI'  :'NASDAQ',
     'XNET'  :'NASDAQ',
     'JRJC'  :'NASDAQ',
+    'JWN'   :'NYSE',
     'M'     :'NYSE',
     'BBY'   :'NYSE',
     'APRN'  :'NYSE',
