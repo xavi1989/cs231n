@@ -21,9 +21,14 @@ blueFill = PatternFill(start_color='00B2EE',
                       end_color='00B2EE',
                       fill_type='solid')
 
-greenFill = PatternFill(start_color='5B965B',
+greenFill1 = PatternFill(start_color='5B965B',
                       end_color='5B965B',
                       fill_type='solid')
+
+greenFill2 = PatternFill(start_color='32CD32',
+                      end_color='32CD32',
+                      fill_type='solid')
+
 defaultFill = PatternFill(fill_type=None,
                    start_color='FFFFFFFF',
                    end_color='FF000000')
@@ -61,15 +66,18 @@ def highlight(ws, row, col, colorFill):
     for cell in ws[index]:
         cell.fill = colorFill
 
-def hightlight_row(ws, colName, colorFill, fun):
-    if colName is None:
+def hightlight_row(ws, colNames, colorFill, fun):
+    if colNames is None:
         raise ValueError
 
     # find col letter with colName
     col_letter = ""
+    col_letter1 = ""
     for cell in ws['1:1']:
-        if cell.value == colName:
+        if cell.value == colNames[0]:
             col_letter, _ = get_cell_coordinate(cell)
+        if cell.value == colNames[1]:
+            col_letter1, _ = get_cell_coordinate(cell)
 
     index = col_letter + ':' + col_letter
     # loop over the column
@@ -78,7 +86,10 @@ def hightlight_row(ws, colName, colorFill, fun):
             #get the row
             col, row = get_cell_coordinate(cell)
             # color the row
-            highlight(ws, str(row), ':', colorFill)
+            highlight(ws, str(row), ':', colorFill[0])
+
+            if fun(ws[col_letter1+str(row)].value):
+                highlight(ws, str(row), ':', colorFill[1])
         else:
             #get the row
             col, row = get_cell_coordinate(cell)
@@ -230,7 +241,7 @@ def understand_excel(Title = None):
     fill_in_gain(sheet, ['TodayCP', 'StartPrice', 'EndPrice', 'Gain'], 'up-rate', startDate, endDate)
 
     # highlight Up
-    hightlight_row(sheet, 'Trend_0', greenFill, lambda x: True if x == 'Up' else False)
+    hightlight_row(sheet, ['Trend_0', 'Trend_1'], [greenFill1, greenFill2], lambda x: True if x == 'Up' else False)
     # hightlight signal change
     hightlight_signalchange(book, sheetTitle, 'Trend_0')
 
