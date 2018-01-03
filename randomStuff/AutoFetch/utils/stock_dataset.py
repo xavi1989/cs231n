@@ -34,6 +34,7 @@ Table = {
     'GRMN'  :'NASDAQ',
     'GRPN'  :'NASDAQ',
     'INTL'  :'NASDAQ',
+    'INTC'  :'NASDAQ',
     'ROKU'  :'NASDAQ',
     'RDFN'  :'NASDAQ',
     'GLUU'  :'NASDAQ',
