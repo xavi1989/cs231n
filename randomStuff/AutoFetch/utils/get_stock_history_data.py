@@ -111,6 +111,9 @@ def stock_data_gain(symbol, start, end):
 
     # process
     price = info.loc[:, 'Close']
+    if len(price) == 0:
+        return 0, 0, 0
+
     start = min(price[-3:]) if len(price) > 2 else min(price)
     info = get_stock_price(symbol)
     end = 0
